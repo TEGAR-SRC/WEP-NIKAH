@@ -9,20 +9,13 @@ export async function POST(req: Request) {
   const guest = await prisma.guest.findUnique({ where: { id: guestId } });
   if (!guest || !guest.phone) return NextResponse.json({ ok: true });
 
-  // Look for thank-you template, fallback to default
-  let body = `Terima kasih {title} {name} sudah membuka undangan pernikahan kami 🙏
+  // Cari template active terlebih dahulu, fallback ke template terima kasih pertama
+  let tmpl = await prisma.template.findFirst({ where: { name: "terima kasih (active)" } });
+  if (!tmpl) tmpl = await prisma.template.findFirst({ where: { name: { startsWith: "terima kasih" } } });
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara
-📍 KUA Batu Aji, Batam
-📅 20 Juli 2026
-
-Jangan lupa konfirmasi kehadiran di halaman undangan ya 😊`;
-  const tmpl = await prisma.template.findFirst({ where: { name: { contains: "terima kasih" } } });
-  if (tmpl) body = tmpl.body;
-
+  const body = tmpl?.body ?? `Terima kasih {title} {name} sudah membuka undangan pernikahan kami 🙏`;
   const msg = body.replace(/\{title\}/g, guest.title).replace(/\{name\}/g, guest.name);
-  try {
-    await sendMessage(guest.phone, msg);
-  } catch {}
+
+  try { await sendMessage(guest.phone, msg); } catch {}
   return NextResponse.json({ ok: true });
 }

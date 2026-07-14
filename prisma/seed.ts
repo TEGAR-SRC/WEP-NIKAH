@@ -232,7 +232,7 @@ Wassalamualaikum
 Tegar & Vebiza`,
   },
   {
-    name: "terima kasih",
+    name: "terima kasih (default)",
     subject: "Terima Kasih",
     body: `Terima kasih {title} {name} sudah membuka undangan pernikahan kami 🙏
 
@@ -241,6 +241,35 @@ Tegar Arrahman & Vebiza Juinda Putri Zahara
 📅 20 Juli 2026
 
 Jangan lupa konfirmasi kehadiran di halaman undangan ya 😊`,
+  },
+  {
+    name: "terima kasih (singkat)",
+    subject: "Thanks!",
+    body: `Makasih {title} {name} udah buka undangan kami 🙏
+
+Jangan lupa konfirmasi kehadiran ya 😊`,
+  },
+  {
+    name: "terima kasih (resmi)",
+    subject: "Terima Kasih",
+    body: `Yth. {title} {name}
+
+Terima kasih telah meluangkan waktu untuk membuka undangan pernikahan kami. Kehadiran dan doa restu {title} {name} sangat berarti bagi kami.
+
+Wassalamualaikum Warahmatullahi Wabarakatuh
+Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+  },
+  {
+    name: "terima kasih (santai)",
+    subject: "Makasih ya!",
+    body: `Halo {title} {name}!
+
+Makasih banget udah buka undangan kami ❤️
+
+Tegar ♥ Vebiza
+20 Juli 2026 | Batam
+
+Konfirmasi hadir ya, ditunggu! 🎉`,
   },
   {
     name: "undangan (English)",
