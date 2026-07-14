@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 const assets = [
+  // Backgrounds & frames
   "/api/r2/public/images/satumomen/bg.webp",
   "/api/r2/public/images/satumomen/ilustrasi.webp",
   "/api/r2/public/images/satumomen/character.webp",
@@ -11,11 +12,19 @@ const assets = [
   "/api/r2/public/images/satumomen/frame-bm.webp",
   "/api/r2/public/images/satumomen/frame-jawa.png",
   "/api/r2/public/images/satumomen/27897-gallery-1672939613.png",
+  "/api/r2/public/images/satumomen/pria.webp",
+  "/api/r2/public/images/satumomen/wanita.webp",
+
+  // Photos & banks
   "/api/r2/public/foto/cewek.jpg",
   "/api/r2/public/foto/cowok.jpg",
   "/api/r2/public/images/digitainvite/images/bank-bca.png",
   "/api/r2/public/images/digitainvite/images/SeaBank.svg.webp",
+  "/api/r2/public/images/digitainvite/images/decorative-top.png",
+
+  // Audio & video
   "/api/r2/public/audio/song-of-sabdatama-wqaeg-2.mp3",
+  "/api/r2/public/VIDIO/The Wedding of Masrul & Maya.mp4",
 ];
 
 export default function Preloader() {
@@ -25,6 +34,7 @@ export default function Preloader() {
         const a = new Audio();
         a.preload = "auto";
         a.src = src;
+        a.load();
       } else if (src.endsWith(".mp4")) {
         const v = document.createElement("video");
         v.preload = "auto";
