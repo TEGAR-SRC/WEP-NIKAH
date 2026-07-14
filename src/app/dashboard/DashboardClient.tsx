@@ -761,22 +761,26 @@ type RemindGuest = { id: string; name: string; title: string; slug: string; phon
 
 function ReminderTab() {
   const [data, setData] = useState<{ total: number; opened: number; confirmed: number; pendingReminder: number; reminderSent: number; guestStats: RemindGuest[] } | null>(null);
+  const [page, setPage] = useState(0);
+  const [rows, setRows] = useState(10);
   useEffect(() => { fetch("/api/wa/reminder-stats").then(r => r.json()).then(setData).catch(() => {}); }, []);
 
   if (!data) return <div style={{ fontSize: 13 }}>Memuat...</div>;
 
+  const totalPages = Math.max(1, Math.ceil(data.guestStats.length / rows));
+  const paged = data.guestStats.slice(page * rows, (page + 1) * rows);
+
   return (
     <div>
-      {/* Kartu ringkasan */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
-          { label: "Total Tamu", value: data.total },
-          { label: "Sudah Buka", value: data.opened },
-          { label: "Sudah Konfirmasi", value: data.confirmed },
-          { label: "Pending Reminder", value: data.pendingReminder },
-          { label: "Reminder Terkirim", value: data.reminderSent },
+          { label: "Total", value: data.total },
+          { label: "Buka", value: data.opened },
+          { label: "Konfirmasi", value: data.confirmed },
+          { label: "Pending", value: data.pendingReminder },
+          { label: "Terkirim", value: data.reminderSent },
         ].map(({ label, value }) => (
-          <div key={label} style={{ flex: "1 0 100px", padding: 10, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
+          <div key={label} style={{ flex: "1 0 90px", padding: 10, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
             <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{label}</div>
           </div>
@@ -788,7 +792,7 @@ function ReminderTab() {
           <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>Buka</th><th style={s.th}>Sejak</th><th style={s.th}>Konfirmasi</th><th style={s.th}>Reminder</th><th style={s.th}>Hadiah</th>
         </tr></thead>
         <tbody>
-          {data.guestStats.map((g) => (
+          {paged.map((g) => (
             <tr key={g.id}>
               <td style={s.td}>{g.title} {g.name}</td>
               <td style={s.td}>{g.phone ?? "—"}</td>
@@ -799,9 +803,10 @@ function ReminderTab() {
               <td style={s.td}>{g.giftCount > 0 ? `🎁${g.giftCount}` : "—"}</td>
             </tr>
           ))}
-          {data.guestStats.length === 0 && <tr><td style={s.td} colSpan={7}>Belum ada data.</td></tr>}
+          {paged.length === 0 && <tr><td style={s.td} colSpan={7}>Belum ada data.</td></tr>}
         </tbody>
       </table></div>
+      <Pagination page={page} totalPages={totalPages} rows={rows} onPage={setPage} onRows={setRows} />
     </div>
   );
 }
