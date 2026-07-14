@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { guestId, message, confirm, turnstileToken } = await req.json();
 
-  if (TURNSTILE_SECRET) {
+  if (TURNSTILE_SECRET && process.env.NODE_ENV !== "development") {
     const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },

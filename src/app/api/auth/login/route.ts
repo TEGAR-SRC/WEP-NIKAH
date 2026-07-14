@@ -13,7 +13,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email dan password diperlukan" }, { status: 400 });
   }
 
-  if (TURNSTILE_SECRET) {
+  // Skip Turnstile di local development
+  if (TURNSTILE_SECRET && process.env.NODE_ENV !== "development") {
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
