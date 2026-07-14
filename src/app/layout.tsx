@@ -20,17 +20,16 @@ const greatVibes = Great_Vibes({
   variable: "--font-latin",
 });
 
+const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://nikah.tegar-src.xyz";
+
 export const metadata: Metadata = {
-  title: "Wedding - Javanese",
+  title: "Undangan Pernikahan Tegar & Vebiza",
   description:
-    "adat jawa warna crema tanpa foto - Undangan Online: Undangan digital modern untuk pernikahan dan acara spesial lainnya.",
+    "Undangan pernikahan Tegar Arrahman & Vebiza Juinda Putri Zahara. Akad & Syukuran 20 Juli 2026.",
   openGraph: {
-    title: "Wedding - Javanese",
-    description:
-      "adat jawa warna crema tanpa foto - Undangan Online",
-    url: "https://satumomen.com/preview/javanese",
-    siteName: "Satu Momen",
-    images: [{ url: "https://satumomen.com/themes/javanese/javanese.jpg" }],
+    title: "Undangan Pernikahan Tegar & Vebiza",
+    description: "Akad & Syukuran 20 Juli 2026.",
+    siteName: "Nikah Tegar & Vebiza",
     locale: "id_ID",
     type: "website",
   },
