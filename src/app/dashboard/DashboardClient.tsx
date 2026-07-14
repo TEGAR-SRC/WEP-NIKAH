@@ -277,6 +277,8 @@ function TemplateTab() {
   const [newName, setNewName] = useState("");
   const [newSubject, setNewSubject] = useState("");
   const [newBody, setNewBody] = useState("");
+  const [showCreateUcapan, setShowCreateUcapan] = useState(false);
+  const [createName, setCreateName] = useState("");
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -344,14 +346,19 @@ function TemplateTab() {
         <label style={s.label}>Body</label><textarea style={s.textarea} value={body} onChange={(e) => setBody(e.target.value)} />
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button style={s.btn()} onClick={save}>Update</button>
-        <button style={s.btn("var(--inv-base)")} onClick={async () => {
-          const name = prompt("Nama template baru:");
-          if (!name) return;
-          await createTmpl(name, subject, body);
-        }}>Simpan Sebagai Baru</button>
+        <button style={s.btn("var(--inv-base)")} onClick={() => { setShowCreateUcapan(!showCreateUcapan); setCreateName(""); }}>{showCreateUcapan ? "Batal" : "Simpan Sebagai Baru"}</button>
       </div>
+      {showCreateUcapan && (
+        <div style={{ marginTop: 12, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+          <div style={{ marginBottom: 8 }}>
+            <label style={s.label}>Nama Template Baru</label>
+            <input style={s.input} value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder="undangan (custom)" />
+          </div>
+          <button style={s.btn()} onClick={async () => { await createTmpl(createName, subject, body); setShowCreateUcapan(false); }}>Buat Template</button>
+        </div>
+      )}
 
       {/* ===== TERIMA KASIH (WA OTOMATIS) ===== */}
       <div style={{ marginTop: 32, paddingTop: 20, borderTop: "2px solid var(--inv-accent)" }}>
