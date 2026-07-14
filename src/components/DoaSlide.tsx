@@ -54,7 +54,7 @@ export default function DoaSlide() {
 
             {sent ? (
               <div style={{ padding: "16px 0" }}>
-                <div style={{ fontSize: 36, marginBottom: 8 }}>🙏</div>
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="var(--inv-accent)" style={{ marginBottom: 8 }}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                 <div style={{ fontSize: 16, fontWeight: 600, color: "var(--inv-accent)" }}>Terima Kasih!</div>
                 <div style={{ fontSize: 13, color: "var(--inv-base)", marginTop: 4 }}>Konfirmasi & doa Anda sudah kami terima ❤️</div>
               </div>
@@ -79,19 +79,20 @@ export default function DoaSlide() {
                   <div style={{ marginTop: 12, padding: 12, borderRadius: 12, background: "rgba(174,116,0,0.06)" }}>
                     <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 10 }}>
                       {[
-                        { value: "hadir", label: "✅ Hadir" },
-                        { value: "tidak hadir", label: "❌ Tidak" },
-                        { value: "ragu", label: "🤔 Ragu" },
+                        { value: "hadir", label: "Hadir", svg: <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> },
+                        { value: "tidak hadir", label: "Tidak", svg: <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> },
+                        { value: "ragu", label: "Ragu", svg: <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg> },
                       ].map((opt) => (
-                        <button key={opt.value} type="button" onClick={() => setConfirm(opt.value)}
+                          <button key={opt.value} type="button" onClick={() => setConfirm(opt.value)}
                           style={{
                             padding: "6px 14px", borderRadius: 20, border: "1px solid var(--inv-accent)",
                             background: confirm === opt.value ? "var(--inv-accent)" : "transparent",
                             color: confirm === opt.value ? "var(--btn-color)" : "var(--inv-accent)",
                             fontSize: 12, cursor: "pointer", fontFamily: "Marcellus, serif",
+                            display: "inline-flex", alignItems: "center", gap: 4,
                           }}
                         >
-                          {opt.label}
+                          {opt.svg} {opt.label}
                         </button>
                       ))}
                     </div>
