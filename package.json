@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:cf": "prisma generate && opennextjs-cloudflare build",
+    "deploy:cf": "wrangler deploy",
     "start": "next start",
     "lint": "eslint"
   },
