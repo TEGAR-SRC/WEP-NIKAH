@@ -59,6 +59,7 @@ function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
+  const [showNames, setShowNames] = useState(false);
   const [videoTime, setVideoTime] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -93,6 +94,7 @@ function Home() {
     setIsOpen(true);
     setShowVideo(true);
     setCanSkip(false);
+    setShowNames(false);
     setVideoTime(0);
     setActiveIndex(0);
     const audio = audioRef.current;
@@ -109,6 +111,7 @@ function Home() {
     const t = e.currentTarget.currentTime;
     setVideoTime(t);
     if (t >= 10) setCanSkip(true);
+    if (t >= 12) setShowNames(true);
   }, []);
 
   const cancelAutoAdvance = useCallback(() => {
@@ -241,6 +244,26 @@ function Home() {
                   filter: "brightness(1.1)",
                 }}
               />
+
+              {showNames && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "18%",
+                    left: 0,
+                    right: 0,
+                    textAlign: "center",
+                    animation: "fadeIn 0.8s both",
+                  }}
+                >
+                  <div style={{ fontFamily: "Great Vibes, cursive", fontSize: 52, color: "#FFD700", lineHeight: 1.2, textShadow: "0 0 20px #000, 0 0 40px rgba(0,0,0,0.8)" }}>
+                    Tegar & Vebiza
+                  </div>
+                  <div style={{ fontFamily: "Marcellus, serif", fontSize: 16, color: "#fff", marginTop: 10, letterSpacing: 5, textTransform: "uppercase", textShadow: "0 0 15px #000, 0 2px 10px rgba(0,0,0,0.8)" }}>
+                    The Wedding
+                  </div>
+                </div>
+              )}
 
               {canSkip && (
                 <div

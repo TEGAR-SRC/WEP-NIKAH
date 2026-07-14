@@ -23,12 +23,18 @@ const greatVibes = Great_Vibes({
 const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "https://nikah.tegar-src.xyz";
 
 export const metadata: Metadata = {
-  title: "Undangan Pernikahan Tegar & Vebiza",
+  title: "Undangan Pernikahan Tegar & Vebiza - 20 Juli 2026",
   description:
-    "Undangan pernikahan Tegar Arrahman & Vebiza Juinda Putri Zahara. Akad & Syukuran 20 Juli 2026.",
+    "Undangan pernikahan online Tegar Arrahman & Vebiza Juinda Putri Zahara. Informasi akad nikah, syukuran, lokasi di KUA Batu Aji Batam, dan RSVP.",
+  keywords: [
+    "undangan pernikahan online", "undangan digital", "undangan nikah",
+    "Tegar Arrahman", "Vebiza Juinda Putri Zahara", "nikah 2026",
+    "akad nikah Batam", "undangan pernikahan Batam", "wedding invitation",
+    "undangan online gratis", "situs undangan nikah",
+  ],
   openGraph: {
-    title: "Undangan Pernikahan Tegar & Vebiza",
-    description: "Akad & Syukuran 20 Juli 2026.",
+    title: "Undangan Pernikahan Tegar & Vebiza - 20 Juli 2026",
+    description: "Akad & Syukuran 20 Juli 2026. KUA Batu Aji, Batam.",
     siteName: "Nikah Tegar & Vebiza",
     locale: "id_ID",
     type: "website",
