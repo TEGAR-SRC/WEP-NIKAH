@@ -639,7 +639,6 @@ function AdminTab() {
           Template ini akan dikirim otomatis ke tamu saat mereka membuka undangan.
         </div>
       </div>
-      </div>
     </div>
   );
 }

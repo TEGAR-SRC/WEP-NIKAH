@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verify } from "argon2";
+import { sign, verify } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { verify as argonVerify } from "argon2";
 
+const JWT_SECRET = process.env.JWT_SECRET || "nikah-jwt-secret-change-in-production";
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY ?? "";
 
 export async function POST(req: Request) {
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const valid = await verify(admin.password, password);
+    const valid = await argonVerify(admin.password, password);
     if (!valid) {
       return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
     }
@@ -37,7 +39,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
 
+  // JWT token with 12-hour expiry
+  const token = sign({ adminId: admin.id, email: admin.email }, JWT_SECRET, { expiresIn: "12h" });
+
   const c = await cookies();
-  c.set("dash-auth", admin.id, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 86400 * 7 });
-  return NextResponse.json({ ok: true });
+  c.set("dash-auth", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 43200 }); // 12 jam
+  return NextResponse.json({ ok: true, token });
 }
