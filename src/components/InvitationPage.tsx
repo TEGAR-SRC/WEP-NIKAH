@@ -150,7 +150,7 @@ function Home() {
 
   // Listen for DoaSlide button -> scroll to guestbook (index 10)
   useEffect(() => {
-    const handler = () => cancelAutoAdvance() || goToSlide(11);
+    const handler = () => { cancelAutoAdvance(); goToSlide(11); };
     window.addEventListener("go-to-guestbook", handler);
     return () => window.removeEventListener("go-to-guestbook", handler);
   }, [goToSlide, cancelAutoAdvance]);
