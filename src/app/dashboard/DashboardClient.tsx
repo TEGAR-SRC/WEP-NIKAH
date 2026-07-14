@@ -279,8 +279,14 @@ function TemplateTab() {
   const [newBody, setNewBody] = useState("");
   const [showCreateUcapan, setShowCreateUcapan] = useState(false);
   const [showCreateThanks, setShowCreateThanks] = useState(false);
+  const [showCreateKonfirm, setShowCreateKonfirm] = useState(false);
   const [createName, setCreateName] = useState("");
   const [createNameThanks, setCreateNameThanks] = useState("");
+  const [createNameKonfirm, setCreateNameKonfirm] = useState("");
+  const [konfirmTemplates, setKonfirmTemplates] = useState<any[]>([]);
+  const [konfirmActiveId, setKonfirmActiveId] = useState<string | null>(null);
+  const [konfirmName, setKonfirmName] = useState("");
+  const [konfirmBody, setKonfirmBody] = useState("");
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -303,6 +309,17 @@ function TemplateTab() {
   };
   useEffect(() => { fetchThanks(); }, []);
 
+  const fetchKonfirm = async () => {
+    const r = await fetch("/api/templates");
+    if (!r.ok) return;
+    const all = await r.json();
+    const filtered = all.filter((t: any) => t.name.includes("konfirmasi"));
+    setKonfirmTemplates(filtered);
+    const active = filtered.find((t: any) => t.name === "konfirmasi (active)") || filtered[0];
+    if (active) { setKonfirmActiveId(active.id); setKonfirmName(active.name); setKonfirmBody(active.body); }
+  };
+  useEffect(() => { fetchKonfirm(); }, []);
+
   const deleteTmpl = async (id: string) => {
     if (!(await ask("Hapus template ini?"))) return;
     await fetch(`/api/templates/${id}`, { method: "DELETE" });
@@ -318,14 +335,14 @@ function TemplateTab() {
   const createTmpl = async (name: string, subj: string, bdy: string) => {
     if (!name.trim() || !bdy.trim()) { show("Isi nama dan body", "err"); return; }
     const r = await fetch("/api/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim(), subject: subj || "Template", body: bdy.trim() }) });
-    if (r.ok) { show("Template dibuat"); fetchTemplates(); fetchThanks(); }
+    if (r.ok) { show("Template dibuat"); fetchTemplates(); fetchThanks(); fetchKonfirm(); }
     else { const e = await r.json(); show(e.error || "Gagal", "err"); }
   };
 
   const updateTmpl = async (id: string, name: string, subj: string, bdy: string) => {
     if (!id) return;
     const r = await fetch(`/api/templates/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, subject: subj, body: bdy }) });
-    if (r.ok) { show("Template diperbarui"); fetchTemplates(); fetchThanks(); }
+    if (r.ok) { show("Template diperbarui"); fetchTemplates(); fetchThanks(); fetchKonfirm(); }
     else { const e = await r.json(); show(e.error || "Gagal", "err"); }
   };
 
@@ -412,6 +429,55 @@ function TemplateTab() {
         )}
         <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
           Template ini dikirim otomatis ke WA tamu saat mereka membuka undangan. Gunakan {`{title}`} dan {`{name}`}.
+        </div>
+      </div>
+
+      {/* ===== KONFIRMASI (WA) ===== */}
+      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "2px solid var(--inv-accent)" }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Konfirmasi (WA Otomatis)</h3>
+        <div style={{ marginBottom: 12 }}>
+          <label style={s.label}>Pilih Template</label>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={konfirmActiveId || ""} onChange={(e) => {
+              setKonfirmActiveId(e.target.value);
+              const t = konfirmTemplates.find((x: any) => x.id === e.target.value);
+              if (t) { setKonfirmName(t.name); setKonfirmBody(t.body); setCreateNameKonfirm(t.name); }
+            }} style={{ ...s.select, maxWidth: 300 }}>
+              {konfirmTemplates.map((t: any) => (<option key={t.id} value={t.id}>{t.name}</option>))}
+            </select>
+            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+              if (!konfirmActiveId) return;
+              await fetch(`/api/templates/${konfirmActiveId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "konfirmasi (active)" }) });
+              show("Template konfirmasi ditetapkan"); fetchKonfirm();
+            }}>Terapkan ✅</button>
+            <button style={s.btn("#b33")} onClick={async () => {
+              if (!(await ask("Hapus template ini?"))) return;
+              await fetch(`/api/templates/${konfirmActiveId}`, { method: "DELETE" });
+              fetchKonfirm(); show("Template dihapus");
+            }}>Hapus</button>
+          </div>
+        </div>
+        <div style={{ marginBottom: 12 }}><label style={s.label}>Nama Template</label><input style={s.input} value={konfirmName} onChange={(e) => setKonfirmName(e.target.value)} placeholder="konfirmasi (custom)" /></div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={s.label}>Body</label>
+          <textarea style={s.textarea} value={konfirmBody} onChange={(e) => setKonfirmBody(e.target.value)} />
+          <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{confirm}`}</div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button style={s.btn()} onClick={() => updateTmpl(konfirmActiveId!, konfirmName, "Konfirmasi", konfirmBody)}>Simpan</button>
+          <button style={s.btn("var(--inv-base)")} onClick={() => setShowCreateKonfirm(!showCreateKonfirm)}>{showCreateKonfirm ? "Batal" : "Simpan Baru"}</button>
+        </div>
+        {showCreateKonfirm && (
+          <div style={{ marginTop: 12, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+            <div style={{ marginBottom: 8 }}>
+              <label style={s.label}>Nama Template Baru</label>
+              <input style={s.input} value={createNameKonfirm} onChange={(e) => setCreateNameKonfirm(e.target.value)} placeholder="konfirmasi (custom)" />
+            </div>
+            <button style={s.btn()} onClick={async () => { await createTmpl(createNameKonfirm, "Konfirmasi", konfirmBody); setShowCreateKonfirm(false); }}>Buat Template</button>
+          </div>
+        )}
+        <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
+          Template ini dikirim otomatis ke WA tamu saat mereka mengirim konfirmasi/ucapan. Gunakan {`{title}`}, {`{name}`}, {`{confirm}`}.
         </div>
       </div>
     </div>

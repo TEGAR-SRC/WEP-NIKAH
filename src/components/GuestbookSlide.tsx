@@ -97,6 +97,7 @@ export default function GuestbookSlide() {
       setConfirm("");
       setSent(true);
       await fetchComments(1);
+      fetch("/api/wa/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, confirm }) }).catch(() => {});
     } catch {
       setError("Gagal mengirim, coba lagi");
     } finally {

@@ -272,6 +272,155 @@ Tegar ♥ Vebiza
 Konfirmasi hadir ya, ditunggu! 🎉`,
   },
   {
+    name: "konfirmasi (default)",
+    subject: "Konfirmasi Kehadiran",
+    body: `Halo {title} {name}!
+
+Terima kasih sudah mengkonfirmasi kehadiran Anda melalui undangan kami 🙏
+
+📌 Konfirmasi: {confirm}
+
+Kami tunggu kehadirannya di:
+📍 KUA Batu Aji, Batam
+📅 20 Juli 2026
+
+Salam,
+Tegar & Vebiza 💕`,
+  },
+  {
+    name: "konfirmasi (singkat)",
+    subject: "Konfirmasi Diterima",
+    body: `Hai {title} {name}, konfirmasi kamu udah kami terima ✅
+
+Kehadiran: {confirm}
+Tanggal: 20 Juli 2026
+Lokasi: KUA Batu Aji, Batam
+
+Makasih banyak! 😊`,
+  },
+  {
+    name: "konfirmasi (resmi)",
+    subject: "Konfirmasi Kehadiran",
+    body: `Yth. {title} {name}
+
+Terima kasih atas konfirmasi kehadiran Anda.
+
+📋 Status: {confirm}
+🗓 20 Juli 2026
+📍 KUA Batu Aji, Batam
+
+Kami tunggu kehadirannya.
+Wassalamualaikum Wr. Wb.
+
+Hormat kami,
+Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+  },
+  {
+    name: "konfirmasi (santai)",
+    subject: "Oke sip!",
+    body: `Halo {title} {name}!
+
+Noted! Konfirmasi kamu: {confirm} ✅
+
+Catet ya:
+📅 20 Juli 2026
+📍 KUA Batu Aji, Batam
+
+Makasih udah konfirmasi! 🎉`,
+  },
+  {
+    name: "konfirmasi (WA singkat)",
+    subject: "Konfirmasi ✅",
+    body: `{title} {name} - {confirm} ✅
+
+Makasih udah konfirmasi! 🙏
+20 Juli 2026 | Batam`,
+  },
+  {
+    name: "konfirmasi (lengkap)",
+    subject: "Konfirmasi Kehadiran - Tegar & Vebiza",
+    body: `Assalamualaikum {title} {name}
+
+Terima kasih telah mengkonfirmasi kehadiran Anda pada acara pernikahan kami.
+
+━━━━━━━━━━━━
+KONFIRMASI ANDA
+━━━━━━━━━━━━
+Status: {confirm}
+Atas Nama: {title} {name}
+
+━━━━━━━━━━━━
+DETAIL ACARA
+━━━━━━━━━━━━
+👰🏻🤵🏻 Tegar Arrahman & Vebiza Juinda Putri Zahara
+📅 Senin, 20 Juli 2026
+⏰ 10.00 WIB (Akad) / 11.00 WIB (Syukuran)
+📍 KUA Batu Aji & Kediaman, Batam
+
+Wassalamualaikum Wr. Wb.
+Tegar & Vebiza`,
+  },
+  {
+    name: "konfirmasi (ucapan doa)",
+    subject: "Doa & Konfirmasi",
+    body: `{title} {name}
+
+"Barakallahulakuma wa baraka 'alaikuma wa jama'a bainakuma fi khair"
+
+Semoga Allah memberkahi kita semua. Terima kasih atas konfirmasi dan doa restu Anda.
+
+Konfirmasi: {confirm}
+20 Juli 2026 | Batam
+
+Wassalamualaikum
+Tegar & Vebiza`,
+  },
+  {
+    name: "konfirmasi (terima kasih)",
+    subject: "Terima Kasih!",
+    body: `Terima kasih {title} {name} sudah konfirmasi 🙏
+
+Kehadiran Anda sangat berarti bagi kami.
+Sampai jumpa di hari bahagia! 🎉
+
+📍 KUA Batu Aji, Batam
+📅 20 Juli 2026
+
+Salam,
+Tegar & Vebiza`,
+  },
+  {
+    name: "konfirmasi (English)",
+    subject: "Confirmation Received",
+    body: `Dear {title} {name}
+
+Thank you for confirming your attendance 🙏
+
+📌 Status: {confirm}
+📅 July 20, 2026
+📍 KUA Batu Aji, Batam
+
+We look forward to seeing you!
+
+Best regards,
+Tegar & Vebiza`,
+  },
+  {
+    name: "konfirmasi (undangan khusus)",
+    subject: "Konfirmasi Diterima",
+    body: `Kepada {title} {name}
+
+Kami telah menerima konfirmasi kehadiran Anda.
+
+Status: {confirm}
+
+Mohon doa restunya untuk kelancaran acara kami.
+Terima kasih banyak atas perhatiannya.
+
+Wassalamualaikum
+Tegar & Vebiza`,
+  },
+  {
     name: "undangan (English)",
     subject: "Wedding Invitation — Tegar & Vebiza",
     body: `Dear {title} {name}
