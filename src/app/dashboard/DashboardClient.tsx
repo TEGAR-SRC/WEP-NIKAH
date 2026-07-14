@@ -274,6 +274,9 @@ function TemplateTab() {
   const [thanksTemplates, setThanksTemplates] = useState<any[]>([]);
   const [thanksActiveId, setThanksActiveId] = useState<string | null>(null);
   const [thanksPreview, setThanksPreview] = useState<any>(null);
+  const [newName, setNewName] = useState("");
+  const [newSubject, setNewSubject] = useState("");
+  const [newBody, setNewBody] = useState("");
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -290,7 +293,9 @@ function TemplateTab() {
     const r = await fetch("/api/settings/thanks-template");
     if (!r.ok) return;
     const d = await r.json();
-    setThanksTemplates(d.templates); setThanksActiveId(d.activeId);
+    setThanksTemplates(d.templates);
+    const active = d.templates.find((t: any) => t.id === d.activeId) || d.templates[0];
+    if (active) { setThanksActiveId(active.id); setThanksPreview(active); setNewName(active.name); setNewBody(active.body); }
   };
   useEffect(() => { fetchThanks(); }, []);
 
@@ -316,32 +321,54 @@ function TemplateTab() {
       </div>
       <button style={s.btn()} onClick={save}>Simpan</button>
 
-      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--inv-border)" }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "var(--inv-accent)" }}>Pesan Terima Kasih (WA)</h3>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <select value={thanksActiveId || ""} onChange={(e) => {
-            setThanksActiveId(e.target.value);
-            const t = thanksTemplates.find((x: any) => x.id === e.target.value);
-            setThanksPreview(t || null);
-          }} style={{ ...s.select, maxWidth: 300 }}>
-            {thanksTemplates.map((t: any) => (
-              <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
-            ))}
-          </select>
-          <button style={s.btn()} onClick={async () => {
-            if (!thanksActiveId) return;
-            const r = await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-            if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
-          }}>Terapkan</button>
-        </div>
-        {thanksPreview && (
-          <div style={s.previewBox}>
-            <strong>{thanksPreview.subject}</strong><br />
-            {thanksPreview.body.split("\n").map((l: string, i: number) => <span key={i}>{l}<br /></span>)}
+      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "2px solid var(--inv-accent)" }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Pesan Terima Kasih (WA)</h3>
+        <div style={{ marginBottom: 12 }}>
+          <label style={s.label}>Pilih Template</label>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <select value={thanksActiveId || ""} onChange={(e) => {
+              setThanksActiveId(e.target.value);
+              const t = thanksTemplates.find((x: any) => x.id === e.target.value);
+              if (t) { setThanksPreview(t); setNewName(t.name); setNewSubject(t.subject); setNewBody(t.body); }
+            }} style={{ ...s.select, maxWidth: 300 }}>
+              {thanksTemplates.map((t: any) => (
+                <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
+              ))}
+            </select>
+            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+              if (!thanksActiveId) return;
+              const r = await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
+              if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
+            }}>Terapkan</button>
           </div>
-        )}
-        <div style={{ fontSize: 11, marginTop: 6, opacity: 0.6 }}>
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={s.label}>Nama Template</label>
+          <input style={s.input} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="terima kasih (custom)" />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={s.label}>Body</label>
+          <textarea style={s.textarea} value={newBody} onChange={(e) => setNewBody(e.target.value)} />
+          <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}</div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button style={s.btn()} onClick={async () => {
+            if (!newName.trim() || !newBody.trim()) { show("Isi nama dan body template", "err"); return; }
+            const r = await fetch("/api/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName.trim(), subject: "Terima Kasih", body: newBody.trim() }) });
+            if (r.ok) { show("Template disimpan"); fetchTemplates(); fetchThanks(); }
+            else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+          }}>Simpan sebagai template baru</button>
+          {thanksPreview && (
+            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+              if (!thanksActiveId) return;
+              const r = await fetch(`/api/templates/${thanksActiveId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName, body: newBody }) });
+              if (r.ok) { show("Template diperbarui"); fetchThanks(); fetchTemplates(); }
+            }}>Update template ini</button>
+          )}
+        </div>
+        <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
           Template ini akan dikirim otomatis ke WA tamu saat mereka membuka undangan.
+          Gunakan {`{title}`} untuk panggilan (Bapak/Ibu) dan {`{name}`} untuk nama tamu.
         </div>
       </div>
     </div>
