@@ -16,5 +16,5 @@ export async function getInstances() {
 
 export async function sendMessage(phone: string, text: string) {
   const number = phone.replace(/[^0-9]/g, "");
-  return api("POST", "message/text", { number, text, delay: 1200 });
+  return api("POST", "send/text", { number, text, delay: 1200 });
 }
