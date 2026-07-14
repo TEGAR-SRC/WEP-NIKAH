@@ -158,12 +158,50 @@ export default function GuestbookSlide() {
           {sent ? (
             <div style={{
               textAlign: "center",
-              fontFamily: "Marcellus, serif",
-              fontSize: 13,
-              color: "var(--inv-accent)",
-              padding: "12px 0",
+              padding: "20px 12px",
+              animation: "fadeIn 0.5s both",
             }}>
-              Terima kasih atas ucapan & doanya 🙏
+              <div style={{
+                width: 60, height: 60, borderRadius: "50%",
+                background: "var(--inv-accent)", color: "var(--btn-color)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 28, margin: "0 auto 16px",
+              }}>🙏</div>
+              <div style={{
+                fontFamily: "DM Serif Display, serif",
+                fontSize: 18,
+                color: "var(--inv-accent)",
+                marginBottom: 8,
+              }}>
+                Terima Kasih {guest.title} {guest.name}!
+              </div>
+              <div style={{
+                fontFamily: "Marcellus, serif",
+                fontSize: 13,
+                color: "var(--inv-base)",
+                lineHeight: 1.8,
+              }}>
+                Ucapan & doa restu Anda sudah kami terima ❤️
+              </div>
+              {confirm ? (
+                <div style={{
+                  marginTop: 12, padding: "6px 16px", borderRadius: 20,
+                  background: "rgba(174,116,0,0.1)",
+                  fontFamily: "Marcellus, serif", fontSize: 12,
+                  color: "var(--inv-accent)", display: "inline-block",
+                }}>
+                  {confirm === "hadir" ? "✅ Konfirmasi: Hadir" : confirm === "tidak hadir" ? "❌ Konfirmasi: Tidak Hadir" : "🤔 Konfirmasi: Ragu"}
+                </div>
+              ) : (
+                <div style={{
+                  marginTop: 12, padding: "6px 16px", borderRadius: 20,
+                  background: "rgba(174,116,0,0.06)",
+                  fontFamily: "Marcellus, serif", fontSize: 12,
+                  color: "var(--inv-base)", opacity: 0.7, display: "inline-block",
+                }}>
+                  Konfirmasi akan dikirim via WhatsApp
+                </div>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
