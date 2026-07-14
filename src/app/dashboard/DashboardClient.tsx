@@ -140,7 +140,7 @@ function GuestsTab() {
         </div>
         <div style={{ fontSize: 11, marginTop: 4, color: "var(--inv-accent)" }}>Slug: {name ? slugify(name) : "(auto dari nama)"}</div>
       </div>
-      <table style={s.table}>
+      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}><table style={s.table}>
         <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Title</th><th style={s.th}>Slug</th><th style={s.th}>Phone</th><th style={s.th}>Status</th><th style={s.th}>Aksi</th></tr></thead>
         <tbody>
           {paged.map((g) => (
@@ -154,7 +154,7 @@ function GuestsTab() {
           ))}
           {guests.length === 0 && <tr><td style={s.td} colSpan={6}>Belum ada tamu.</td></tr>}
         </tbody>
-      </table>
+      </table></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
           <span>Baris per halaman:</span>
@@ -209,7 +209,7 @@ function CommentsTab() {
       <div style={{ marginBottom: 12, display: "flex", gap: 8, alignItems: "center" }}>
         <input style={{ ...s.input, flex: 1 }} placeholder="Cari nama atau pesan..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
       </div>
-      <table style={s.table}>
+      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}><table style={s.table}>
         <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Pesan</th><th style={s.th}>Konfirmasi</th><th style={s.th}>Tanggal</th><th style={s.th}>Aksi</th></tr></thead>
         <tbody>
           {paged.map((c) => (
@@ -221,7 +221,7 @@ function CommentsTab() {
           ))}
           {filtered.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada ucapan.</td></tr>}
         </tbody>
-      </table>
+      </table></div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
           <span>Baris per halaman:</span>
@@ -391,7 +391,7 @@ function StatsTab() {
         <button style={s.btn(filter === "opened" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("opened")}>Sudah</button>
         <button style={s.btn(filter === "not" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("not")}>Belum</button>
       </div>
-      <table style={s.table}>
+      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}><table style={s.table}>
         <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Link</th><th style={s.th}>Dibuka</th><th style={s.th}>Kunjungan</th><th style={s.th}>Terakhir</th><th style={s.th}>WA</th></tr></thead>
         <tbody>
           {paged.map((g) => (
@@ -406,7 +406,7 @@ function StatsTab() {
           ))}
           {paged.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
         </tbody>
-      </table>
+      </table></div>
 
       {/* Pagination + rows per page */}
       <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
@@ -470,6 +470,8 @@ function KirimWATab() {
   const [sending, setSending] = useState(false);
   const [logs, setLogs] = useState<WALog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
+  const [waPage, setWaPage] = useState(0);
+  const [waRows, setWaRows] = useState(10);
   const { show } = useContext(NotifCtx);
 
   const checkWA = useCallback(async () => {
@@ -518,8 +520,19 @@ function KirimWATab() {
     show(`${ok} terkirim, ${fail} gagal`);
   };
 
+  const waTotalPages = Math.max(1, Math.ceil(guests.filter((g) => g.phone).length / waRows));
+  const waPaged = guests.filter((g) => g.phone).slice(waPage * waRows, (waPage + 1) * waRows);
+  const waNoPhone = guests.filter((g) => !g.phone);
+
   const statusColor = waConnected ? "#28a745" : waConnecting ? "#ffc107" : "#dc3545";
   const statusText = waConnected ? "Terhubung" : waConnecting ? "Menghubungkan..." : "Terputus";
+
+  const pagBtn = (disabled: boolean, onClick: () => void, label: string, active?: boolean) => (
+    <button disabled={disabled} onClick={onClick}
+      style={{ padding: "3px 8px", border: "1px solid var(--inv-border)", borderRadius: 4, background: active ? "var(--inv-accent)" : "var(--inv-bg)", color: disabled ? "var(--inv-border)" : active ? "var(--btn-color)" : "var(--inv-base)", cursor: disabled ? "default" : "pointer", fontSize: 12, fontWeight: active ? 700 : 400 }}>{label}</button>
+  );
+
+  const wrapTable = (content: any) => <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>{content}</div>;
 
   return (
     <div>
@@ -568,28 +581,44 @@ function KirimWATab() {
         </div>
       )}
 
-      <table style={s.table}>
-        <thead><tr>
-          <th style={{ ...s.th, width: 32 }}><input type="checkbox" style={s.checkbox} onChange={(e) => { if (e.target.checked) setSelectedIds(new Set(guests.map((g) => g.id))); else setSelectedIds(new Set()); }} checked={selectedIds.size === guests.length && guests.length > 0} /></th>
-          <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>Preview</th><th style={s.th}>Kirim</th>
-        </tr></thead>
-        <tbody>
-          {guests.map((g) => (
-            <tr key={g.id}>
-              <td style={s.td}><input type="checkbox" style={s.checkbox} checked={selectedIds.has(g.id)} onChange={() => toggle(g.id)} /></td>
-              <td style={s.td}>{g.name}</td><td style={s.td}>{g.phone ?? "—"}</td>
-              <td style={s.td}><button style={s.btn()} onClick={() => setPreviewGuest(previewGuest?.id === g.id ? null : g)}>{previewGuest?.id === g.id ? "Tutup" : "Preview"}</button></td>
-              <td style={s.td}>{g.phone ? <button style={s.btn("var(--inv-accent)")} onClick={async () => { if (await sendToGuest(g)) { show("Terkirim"); fetchLogs(); } else show("Gagal", "err"); }}>Kirim</button> : "—"}</td>
-            </tr>
-          ))}
-          {guests.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada tamu.</td></tr>}
-        </tbody>
-      </table>
-      {previewGuest && <div style={s.previewBox}><strong>Preview untuk {previewGuest.name}:</strong><br />{fillMessage(previewGuest)}</div>}
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginBottom: 12, display: "flex", justifyContent: "flex-end" }}>
         <button style={s.btn()} onClick={sendSelected} disabled={sending}>
           {sending ? "Mengirim..." : `Kirim ke ${selectedIds.size} tamu`}
         </button>
+      </div>
+      {wrapTable(
+        <table style={s.table}>
+          <thead><tr>
+            <th style={{ ...s.th, width: 32 }}><input type="checkbox" style={s.checkbox} onChange={(e) => { if (e.target.checked) setSelectedIds(new Set(guests.map((g) => g.id))); else setSelectedIds(new Set()); }} checked={selectedIds.size === guests.length && guests.length > 0} /></th>
+            <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>Preview</th><th style={s.th}>Kirim</th>
+          </tr></thead>
+          <tbody>
+            {[...waPaged, ...waNoPhone].map((g) => (
+              <tr key={g.id}>
+                <td style={s.td}><input type="checkbox" style={s.checkbox} checked={selectedIds.has(g.id)} onChange={() => toggle(g.id)} /></td>
+                <td style={s.td}>{g.name}</td><td style={s.td}>{g.phone ?? "—"}</td>
+                <td style={s.td}><button style={s.btn()} onClick={() => setPreviewGuest(previewGuest?.id === g.id ? null : g)}>{previewGuest?.id === g.id ? "Tutup" : "Preview"}</button></td>
+                <td style={s.td}>{g.phone ? <button style={s.btn("var(--inv-accent)")} onClick={async () => { if (await sendToGuest(g)) { show("Terkirim"); fetchLogs(); } else show("Gagal", "err"); }}>Kirim</button> : "—"}</td>
+              </tr>
+            ))}
+            {guests.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada tamu.</td></tr>}
+          </tbody>
+        </table>
+      )}
+      {previewGuest && <div style={s.previewBox}><strong>Preview untuk {previewGuest.name}:</strong><br />{fillMessage(previewGuest)}</div>}
+      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+          <span>Rows:</span>
+          <select value={waRows} onChange={(e) => { setWaRows(Number(e.target.value)); setWaPage(0); }}
+            style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", fontSize: 13 }}>
+            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          {pagBtn(waPage === 0, () => setWaPage(waPage - 1), "Sebelumnya")}
+          {Array.from({ length: waTotalPages }, (_, i) => <span key={i}>{pagBtn(false, () => setWaPage(i), String(i + 1), i === waPage)}</span>)}
+          {pagBtn(waPage >= waTotalPages - 1, () => setWaPage(waPage + 1), "Selanjutnya")}
+        </div>
       </div>
     </div>
   );
