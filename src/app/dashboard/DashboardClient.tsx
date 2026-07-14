@@ -104,6 +104,8 @@ function GuestsTab() {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("Bapak/Ibu");
   const [phone, setPhone] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
@@ -124,6 +126,9 @@ function GuestsTab() {
     fetchGuests(); show("Tamu dihapus");
   };
 
+  const totalPages = Math.max(1, Math.ceil(guests.length / rowsPerPage));
+  const paged = guests.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
@@ -138,7 +143,7 @@ function GuestsTab() {
       <table style={s.table}>
         <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Title</th><th style={s.th}>Slug</th><th style={s.th}>Phone</th><th style={s.th}>Status</th><th style={s.th}>Aksi</th></tr></thead>
         <tbody>
-          {guests.map((g) => (
+          {paged.map((g) => (
             <tr key={g.id}>
               <td style={s.td}>{g.name}</td><td style={s.td}>{g.title}</td><td style={s.td}><code>{g.slug}</code></td><td style={s.td}>{g.phone ?? "—"}</td><td style={s.td}>{g.status}</td>
               <td style={s.td}>
@@ -150,12 +155,33 @@ function GuestsTab() {
           {guests.length === 0 && <tr><td style={s.td} colSpan={6}>Belum ada tamu.</td></tr>}
         </tbody>
       </table>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+          <span>Baris per halaman:</span>
+          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13 }}>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
+          <button disabled={page === 0} onClick={() => setPage(page - 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button key={i} onClick={() => setPage(i)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
+          ))}
+          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function CommentsTab() {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
@@ -170,20 +196,51 @@ function CommentsTab() {
 
   const confirmLabel = (c: string) => c === "hadir" ? "Hadir" : c === "tidak hadir" ? "Tidak Hadir" : c === "ragu" ? "Ragu" : "—";
 
+  const filtered = comments.filter((c) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return c.guest.name.toLowerCase().includes(q) || c.message.toLowerCase().includes(q);
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+
   return (
-    <table style={s.table}>
-      <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Pesan</th><th style={s.th}>Konfirmasi</th><th style={s.th}>Tanggal</th><th style={s.th}>Aksi</th></tr></thead>
-      <tbody>
-        {comments.map((c) => (
-          <tr key={c.id}>
-            <td style={s.td}>{c.guest.name}</td><td style={s.td}>{c.message}</td><td style={s.td}>{confirmLabel(c.confirm)}</td>
-            <td style={s.td}>{new Date(c.createdAt).toLocaleDateString("id-ID")}</td>
-            <td style={s.td}><button style={s.btn("#b33")} onClick={() => deleteComment(c.id)}>Hapus</button></td>
-          </tr>
-        ))}
-        {comments.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada ucapan.</td></tr>}
-      </tbody>
-    </table>
+    <div>
+      <div style={{ marginBottom: 12, display: "flex", gap: 8, alignItems: "center" }}>
+        <input style={{ ...s.input, flex: 1 }} placeholder="Cari nama atau pesan..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+      </div>
+      <table style={s.table}>
+        <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Pesan</th><th style={s.th}>Konfirmasi</th><th style={s.th}>Tanggal</th><th style={s.th}>Aksi</th></tr></thead>
+        <tbody>
+          {paged.map((c) => (
+            <tr key={c.id}>
+              <td style={s.td}>{c.guest.name}</td><td style={s.td}>{c.message}</td><td style={s.td}>{confirmLabel(c.confirm)}</td>
+              <td style={s.td}>{new Date(c.createdAt).toLocaleDateString("id-ID")}</td>
+              <td style={s.td}><button style={s.btn("#b33")} onClick={() => deleteComment(c.id)}>Hapus</button></td>
+            </tr>
+          ))}
+          {filtered.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada ucapan.</td></tr>}
+        </tbody>
+      </table>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+          <span>Baris per halaman:</span>
+          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13 }}>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
+          <button disabled={page === 0} onClick={() => setPage(page - 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button key={i} onClick={() => setPage(i)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
+          ))}
+          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

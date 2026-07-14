@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useCallback } from "react";
 import SlideFrame from "./SlideFrame";
 import { useGuest } from "@/lib/guest-context";
 
@@ -12,6 +12,41 @@ interface CommentItem {
   guest: { name: string; title: string };
 }
 
+interface PaginatedResponse {
+  comments: CommentItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+const months = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function getAvatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return `hsl(${Math.abs(hash) % 360}, 55%, 60%)`;
+}
+
+function Avatar({ name, size = 32 }: { name: string; size?: number }) {
+  const letter = name.trim().charAt(0).toUpperCase() || "?";
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%",
+      background: getAvatarColor(name),
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "DM Serif Display, serif", fontSize: size * 0.45,
+      color: "#fff", flexShrink: 0, lineHeight: 1,
+    }}>
+      {letter}
+    </div>
+  );
+}
+
 export default function GuestbookSlide() {
   const guest = useGuest();
   const [message, setMessage] = useState("");
@@ -20,13 +55,27 @@ export default function GuestbookSlide() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/comments")
-      .then((r) => r.json())
-      .then(setComments)
-      .catch(() => {});
+  const fetchComments = useCallback(async (p: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/comments?page=${p}&limit=5`);
+      if (!res.ok) throw new Error();
+      const data: PaginatedResponse = await res.json();
+      setComments(data.comments);
+      setTotalPages(data.totalPages);
+      setPage(data.page);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => { fetchComments(1); }, [fetchComments]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -41,11 +90,10 @@ export default function GuestbookSlide() {
         body: JSON.stringify({ guestId: guest.id, message: message.trim(), confirm }),
       });
       if (!res.ok) throw new Error("Gagal mengirim");
-      const created = await res.json();
-      setComments((prev) => [created, ...prev]);
       setMessage("");
       setConfirm("");
       setSent(true);
+      await fetchComments(1);
     } catch {
       setError("Gagal mengirim, coba lagi");
     } finally {
@@ -204,62 +252,142 @@ export default function GuestbookSlide() {
             borderTop: "1px solid rgba(174,116,0,0.15)",
             paddingTop: 16,
           }}>
-            {comments.length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                fontFamily: "Marcellus, serif",
-                fontSize: 12,
-                color: "var(--inv-base)",
-                opacity: 0.5,
-              }}>
+            <div style={{
+              fontFamily: "DM Serif Display, serif",
+              fontSize: 12,
+              color: "var(--inv-accent)",
+              textAlign: "center",
+              letterSpacing: 3,
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}>
+              Ucapan & Doa ({comments.length})
+            </div>
+
+            {loading ? (
+              <div style={{ textAlign: "center", fontFamily: "Marcellus, serif", fontSize: 12, color: "var(--inv-base)", opacity: 0.5 }}>Memuat...</div>
+            ) : comments.length === 0 ? (
+              <div style={{ textAlign: "center", fontFamily: "Marcellus, serif", fontSize: 12, color: "var(--inv-base)", opacity: 0.5 }}>
                 Belum ada ucapan
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {comments.map((c) => (
-                  <div key={c.id} style={{
-                    background: "rgba(255,255,255,0.3)",
-                    borderRadius: 12,
-                    padding: "10px 12px",
-                  }}>
-                    <div style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 4,
+              <>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {comments.map((c) => (
+                    <div key={c.id} style={{
+                      background: "rgba(255,255,255,0.3)",
+                      borderRadius: 12,
+                      padding: "10px 12px",
                     }}>
-                      <span style={{
-                        fontFamily: "DM Serif Display, serif",
-                        fontSize: 12,
-                        color: "var(--inv-accent)",
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginBottom: 4,
                       }}>
-                        {c.guest.title} {c.guest.name}
-                      </span>
-                      {c.confirm && (
-                        <span style={{
-                          fontFamily: "Marcellus, serif",
-                          fontSize: 10,
-                          color: "var(--inv-accent)",
-                          opacity: 0.7,
-                          letterSpacing: 1,
-                          textTransform: "uppercase",
-                        }}>
-                          {c.confirm}
-                        </span>
-                      )}
+                        <Avatar name={c.guest.name} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}>
+                            <span style={{
+                              fontFamily: "DM Serif Display, serif",
+                              fontSize: 12,
+                              color: "var(--inv-accent)",
+                            }}>
+                              {c.guest.title} {c.guest.name}
+                            </span>
+                            {c.confirm && (
+                              <span style={{
+                                fontFamily: "Marcellus, serif",
+                                fontSize: 10,
+                                color: "var(--inv-accent)",
+                                opacity: 0.7,
+                                letterSpacing: 1,
+                                textTransform: "uppercase",
+                              }}>
+                                {c.confirm}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{
+                            fontFamily: "Marcellus, serif",
+                            fontSize: 10,
+                            color: "var(--inv-base)",
+                            opacity: 0.5,
+                            marginTop: 1,
+                          }}>
+                            {formatDate(c.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{
+                        fontFamily: "Marcellus, serif",
+                        fontSize: 12,
+                        color: "var(--inv-base)",
+                        lineHeight: 1.5,
+                        whiteSpace: "pre-wrap",
+                        marginTop: 2,
+                      }}>
+                        {c.message}
+                      </div>
                     </div>
-                    <div style={{
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 12,
+                    marginTop: 12,
+                  }}>
+                    <button
+                      onClick={() => fetchComments(page - 1)}
+                      disabled={page <= 1}
+                      style={{
+                        fontFamily: "Marcellus, serif",
+                        fontSize: 12,
+                        color: page <= 1 ? "var(--inv-base)" : "var(--inv-accent)",
+                        opacity: page <= 1 ? 0.3 : 1,
+                        background: "none",
+                        border: "none",
+                        cursor: page <= 1 ? "not-allowed" : "pointer",
+                        padding: "4px 8px",
+                      }}
+                    >
+                      Sebelumnya
+                    </button>
+                    <span style={{
                       fontFamily: "Marcellus, serif",
-                      fontSize: 12,
+                      fontSize: 11,
                       color: "var(--inv-base)",
-                      lineHeight: 1.5,
-                      whiteSpace: "pre-wrap",
+                      opacity: 0.6,
                     }}>
-                      {c.message}
-                    </div>
+                      {page} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => fetchComments(page + 1)}
+                      disabled={page >= totalPages}
+                      style={{
+                        fontFamily: "Marcellus, serif",
+                        fontSize: 12,
+                        color: page >= totalPages ? "var(--inv-base)" : "var(--inv-accent)",
+                        opacity: page >= totalPages ? 0.3 : 1,
+                        background: "none",
+                        border: "none",
+                        cursor: page >= totalPages ? "not-allowed" : "pointer",
+                        padding: "4px 8px",
+                      }}
+                    >
+                      Selanjutnya
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </div>

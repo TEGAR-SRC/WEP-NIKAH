@@ -43,10 +43,11 @@ const comments = [
   { message: "Barakallah! Semoga menjadi keluarga yang bahagia dan penuh berkah.", confirm: "hadir", guestIdx: 1 },
 ];
 
-const template = {
-  name: "undangan",
-  subject: "Undangan Pernikahan Tegar & Vebiza",
-  body: `Yth. {title} {name}
+const templates = [
+  {
+    name: "undangan (formal)",
+    subject: "Undangan Pernikahan Tegar & Vebiza",
+    body: `Yth. {title} {name}
 
 Assalamualaikum Warahmatullahi Wabarakatuh
 
@@ -64,7 +65,195 @@ Wassalamualaikum Warahmatullahi Wabarakatuh
 
 Hormat kami,
 Tegar & Vebiza`,
-};
+  },
+  {
+    name: "undangan (singkat)",
+    subject: "Undangan Nikah Tegar & Vebiza",
+    body: `Assalamualaikum {title} {name}
+
+Kami mengundang {title} {name} untuk hadir di acara pernikahan kami:
+
+Tegar Arrahman ♥ Vebiza Juinda Putri Zahara
+
+🗓 20 Juli 2026
+📍 KUA Batu Aji, Batam
+
+Link undangan: {BASE_URL}/undangan/{slug}
+
+Mohon doa & restunya 🙏
+
+Terima kasih
+Wassalamualaikum
+
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (santai)",
+    subject: "Gaiss.. Tegar & Vebiza nikah!",
+    body: `Halo {title} {name}!
+
+Kabar bahagia 🎉
+Kami akan melangsungkan pernikahan dan sangat senang jika {title} {name} bisa hadir!
+
+Tegar Arrahman 💍 Vebiza Juinda Putri Zahara
+
+📅 20 Juli 2026
+📍 KUA Batu Aji, Batam
+
+Yuk klik link ini buat liat detailnya:
+{BASE_URL}/undangan/{slug}
+
+Jangan lupa konfirmasi kehadiran ya! 😊
+
+Makasih banyak!
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (resmi singkat)",
+    subject: "Undangan Resmi Tegar & Vebiza",
+    body: `Kepada {title} {name}
+
+Assalamualaikum
+
+Dengan ini kami mengundang {title} {name} pada acara pernikahan:
+
+Tunangan : Tegar Arrahman & Vebiza Juinda Putri Zahara
+Waktu : 20 Juli 2026
+
+Link undangan: {BASE_URL}/undangan/{slug}
+
+Kehadiran {title} {name} sangat berarti bagi kami.
+
+Wassalamualaikum
+
+Hormat kami,
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (dengan doa)",
+    subject: "Doa & Undangan Tegar & Vebiza",
+    body: `Yth. {title} {name}
+
+Assalamualaikum
+
+"Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu pasangan dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya di antaramu rasa kasih dan sayang." (QS Ar-Rum: 21)
+
+Dengan izin Allah, kami akan menikah:
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara
+20 Juli 2026
+
+Link: {BASE_URL}/undangan/{slug}
+
+Mohon doa restunya.
+
+Wassalamualaikum
+
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (simple)",
+    subject: "Wedding Invitation",
+    body: `Hi {title} {name} 🤝
+
+Tegar & Vebiza getting married!
+
+20 July 2026
+KUA Batu Aji, Batam
+
+Full invitation: {BASE_URL}/undangan/{slug}
+
+Please come and give us your blessing ❤️
+
+Best regards,
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (WA singkat)",
+    subject: "Nikah!",
+    body: `Assalamualaikum {title} {name}
+
+Besok kita nikah! 🎉
+
+Tegar ♥ Vebiza
+20 Juli 2026
+
+Link undangan: {BASE_URL}/undangan/{slug}
+
+Doain lancar ya 🙏
+
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (lengkap)",
+    subject: "Undangan Tegar & Vebiza — Lengkap",
+    body: `Yth. {title} {name} di tempat
+
+Assalamualaikum Warahmatullahi Wabarakatuh
+
+Segala puji bagi Allah SWT yang telah mempertemukan kami dalam ikatan suci pernikahan. Dengan ini kami bermaksud mengundang {title} {name} untuk berkenan hadir memberi doa restu pada acara pernikahan kami:
+
+━━━━━━━━━━━━━━━━
+TEGAR ARRAHMAN
+&
+VEBIZA JUINDA PUTRI ZAHARA
+━━━━━━━━━━━━━━━━
+
+📅 Hari & Tanggal: Senin, 20 Juli 2026
+⏰ Pukul: 10.00 WIB (Akad) / 11.00 WIB (Syukuran)
+📍 Lokasi: KUA Batu Aji & Kediaman, Batam
+
+Silakan buka link undangan lengkap:
+{BASE_URL}/undangan/{slug}
+
+Merupakan suatu kebahagiaan bagi kami apabila {title} {name} berkenan hadir. Atas perhatiannya, kami ucapkan terima kasih.
+
+Wassalamualaikum Warahmatullahi Wabarakatuh
+
+Hormat kami,
+Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+  },
+  {
+    name: "undangan (undangan khusus)",
+    subject: "Undangan Khusus Tegar & Vebiza",
+    body: `Khusus untuk: {title} {name}
+
+Assalamualaikum
+
+Kami dengan bangga mengundang {title} {name} secara khusus untuk hadir memberikan doa restu pada hari pernikahan kami.
+
+Tegar & Vebiza
+20 Juli 2026 | Batam
+
+Link pribadi: {BASE_URL}/undangan/{slug}
+
+Kami tunggu kehadirannya 🙏
+
+Wassalamualaikum
+
+Tegar & Vebiza`,
+  },
+  {
+    name: "undangan (English)",
+    subject: "Wedding Invitation — Tegar & Vebiza",
+    body: `Dear {title} {name}
+
+With great joy, we invite you to the wedding of:
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara
+
+📅 Monday, July 20, 2026
+📍 KUA Batu Aji, Batam
+
+Please view the full invitation:
+{BASE_URL}/undangan/{slug}
+
+Your presence and prayers mean the world to us.
+
+Best regards,
+Tegar & Vebiza`,
+  },
+];
 
 async function main() {
   await prisma.admin.upsert({
@@ -92,12 +281,14 @@ async function main() {
     });
   }
 
-  await prisma.template.upsert({
-    where: { name: template.name },
-    update: template,
-    create: template,
-  });
-  console.log(`Seed done: ${guests.length} tamu, ${comments.length} ucapan`);
+  for (const t of templates) {
+    await prisma.template.upsert({
+      where: { name: t.name },
+      update: t,
+      create: t,
+    });
+  }
+  console.log(`Seed done: ${guests.length} tamu, ${comments.length} ucapan, ${templates.length} template`);
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());
