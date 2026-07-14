@@ -309,7 +309,7 @@ function TemplateTab() {
   return (
     <div>
       <div style={{ marginBottom: 12 }}>
-        <label style={s.label}>Pilih Template</label>
+        <label style={s.label}>Pilih Template Ucapan (WA)</label>
         <select style={{ ...s.select, maxWidth: 300 }} value={selected?.id ?? ""} onChange={(e) => { const t = templates.find((x) => x.id === e.target.value); if (t) { setSelected(t); setSubject(t.subject); setBody(t.body); } }}>
           {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
@@ -319,10 +319,11 @@ function TemplateTab() {
         <label style={s.label}>Body</label><textarea style={s.textarea} value={body} onChange={(e) => setBody(e.target.value)} />
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
+      <div style={{ fontSize: 11, marginBottom: 12, opacity: 0.6 }}>Template ini untuk kirim undangan ke WA tamu.</div>
       <button style={s.btn()} onClick={save}>Simpan</button>
 
       <div style={{ marginTop: 32, paddingTop: 20, borderTop: "2px solid var(--inv-accent)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Pesan Terima Kasih (WA)</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Pesan Terima Kasih (WA Otomatis)</h3>
         <div style={{ marginBottom: 12 }}>
           <label style={s.label}>Pilih Template</label>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
