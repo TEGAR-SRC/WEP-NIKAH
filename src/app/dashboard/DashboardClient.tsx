@@ -14,6 +14,31 @@ function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
+function Pagination({ page, totalPages, rows, onPage, onRows }: { page: number; totalPages: number; rows: number; onPage: (p: number) => void; onRows: (r: number) => void }) {
+  return (
+    <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+        <span style={{ opacity: 0.6 }}>Rows:</span>
+        <select value={rows} onChange={(e) => { onRows(Number(e.target.value)); onPage(0); }}
+          style={{ padding: "4px 8px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13, outline: "none" }}>
+          {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+        </select>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <button disabled={page === 0} onClick={() => onPage(page - 1)}
+          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13, opacity: page === 0 ? 0.4 : 1 }}>‹</button>
+        {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => (
+          <button key={i} onClick={() => onPage(i)}
+            style={{ minWidth: 32, padding: "4px 0", border: i === page ? "none" : "1px solid var(--inv-border)", borderRadius: 6, background: i === page ? "var(--inv-accent)" : "transparent", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400 }}>{i + 1}</button>
+        ))}
+        {totalPages > 8 && <span style={{ fontSize: 13, opacity: 0.4 }}>...</span>}
+        <button disabled={page >= totalPages - 1} onClick={() => onPage(page + 1)}
+          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13, opacity: page >= totalPages - 1 ? 0.4 : 1 }}>›</button>
+      </div>
+    </div>
+  );
+}
+
 const s = {
   container: { maxWidth: 800, margin: "0 auto", padding: "24px 16px", background: "var(--inv-bg)", color: "var(--inv-base)", fontFamily: "var(--font-base)", minHeight: "100vh" } as React.CSSProperties,
   h1: { fontSize: 24, marginBottom: 16 },
@@ -165,19 +190,7 @@ function GuestsTab() {
           {guests.length === 0 && <tr><td style={s.td} colSpan={6}>Belum ada tamu.</td></tr>}
         </tbody>
       </table></div>
-      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-          <span>Rows:</span>
-          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13 }}>
-            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {pagBtn(page === 0, () => setPage(page - 1), "Sebelumnya")}
-          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => <span key={i}>{pagBtn(false, () => setPage(i), String(i + 1), i === page)}</span>)}
-          {pagBtn(page >= totalPages - 1, () => setPage(page + 1), "Selanjutnya")}
-        </div>
-      </div>
+      <Pagination page={page} totalPages={totalPages} rows={rowsPerPage} onPage={setPage} onRows={setRowsPerPage} />
     </div>
   );
 }
@@ -227,24 +240,7 @@ function CommentsTab() {
           {filtered.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada ucapan.</td></tr>}
         </tbody>
       </table></div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-          <span>Baris per halaman:</span>
-          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13 }}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
-          <button disabled={page === 0} onClick={() => setPage(page - 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button key={i} onClick={() => setPage(i)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
-          ))}
-          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
-        </div>
-      </div>
+      <Pagination page={page} totalPages={totalPages} rows={rowsPerPage} onPage={setPage} onRows={setRowsPerPage} />
     </div>
   );
 }
@@ -430,28 +426,7 @@ function StatsTab() {
           {paged.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
         </tbody>
       </table></div>
-
-      {/* Pagination + rows per page */}
-      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-          <span>Rows:</span>
-          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }}
-            style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", fontSize: 13 }}>
-            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
-          <button disabled={page === 0} onClick={() => setPage(page - 1)}
-            style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button key={i} onClick={() => setPage(i)}
-              style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
-          ))}
-          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}
-            style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
-        </div>
-      </div>
-
+      <Pagination page={page} totalPages={totalPages} rows={rowsPerPage} onPage={setPage} onRows={setRowsPerPage} />
       {/* Recent */}
       <div style={{ marginTop: 16 }}>
         <button style={s.btn("var(--inv-base)")} onClick={() => setShowRecent(!showRecent)}>
@@ -629,20 +604,7 @@ function KirimWATab() {
         </table>
       )}
       {previewGuest && <div style={s.previewBox}><strong>Preview untuk {previewGuest.name}:</strong><br />{fillMessage(previewGuest)}</div>}
-      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-          <span>Rows:</span>
-          <select value={waRows} onChange={(e) => { setWaRows(Number(e.target.value)); setWaPage(0); }}
-            style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", fontSize: 13 }}>
-            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {pagBtn(waPage === 0, () => setWaPage(waPage - 1), "Sebelumnya")}
-          {Array.from({ length: waTotalPages }, (_, i) => <span key={i}>{pagBtn(false, () => setWaPage(i), String(i + 1), i === waPage)}</span>)}
-          {pagBtn(waPage >= waTotalPages - 1, () => setWaPage(waPage + 1), "Selanjutnya")}
-        </div>
-      </div>
+      <Pagination page={waPage} totalPages={waTotalPages} rows={waRows} onPage={setWaPage} onRows={setWaRows} />
     </div>
   );
 }
