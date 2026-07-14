@@ -116,13 +116,9 @@ export default function GuestbookSlide() {
   return (
     <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
       <SlideFrame />
-      <div className="flex justify-center items-center" style={{ height: "100%", padding: "20px" }}>
+      <div className="flex justify-center items-start" style={{ height: "100%", padding: "20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
         <div className="animate__animated animate__fadeIn animate__slower" style={{
           width: "100%",
-          maxHeight: "calc(100vh - 80px)",
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch",
-          touchAction: "pan-y",
           background: "rgba(228,221,215,0.6)",
           backdropFilter: "blur(4px)",
           borderRadius: 24,
