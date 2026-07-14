@@ -133,15 +133,15 @@ export default function DashboardClient() {
           <a href="https://github.com/TEGAR-SRC" target="_blank" rel="noopener noreferrer" style={{ color: "#000", textDecoration: "none", fontWeight: 700 }}>tegararrahman</a>
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 4, alignItems: "center", flexWrap: "wrap" }}>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/nextdotjs/wordmark-light.svg" alt="Next.js" style={{ height: 26, opacity: 0.7 }} />
-          <span style={{ color: "#000", fontSize: 12, opacity: 0.3 }}>●</span>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/go/light.svg" alt="Go" style={{ height: 30, opacity: 0.7 }} />
-          <span style={{ color: "#000", fontSize: 12, opacity: 0.3 }}>●</span>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/redis/default.svg" alt="Redis" style={{ height: 30, opacity: 0.7 }} />
-          <span style={{ color: "#000", fontSize: 12, opacity: 0.3 }}>●</span>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/typescript/default.svg" alt="TypeScript" style={{ height: 30, opacity: 0.7 }} />
-          <span style={{ color: "#000", fontSize: 12, opacity: 0.3 }}>●</span>
-          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/tailwindcss/default.svg" alt="Tailwind" style={{ height: 28, opacity: 0.7 }} />
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/nextdotjs/wordmark-light.svg" alt="Next.js" style={{ height: 18, opacity: 0.7 }} />
+          <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/go/light.svg" alt="Go" style={{ height: 20, opacity: 0.7 }} />
+          <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/redis/default.svg" alt="Redis" style={{ height: 20, opacity: 0.7 }} />
+          <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/typescript/default.svg" alt="TypeScript" style={{ height: 20, opacity: 0.7 }} />
+          <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+          <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/tailwindcss/default.svg" alt="Tailwind" style={{ height: 18, opacity: 0.7 }} />
         </div>
       </footer>
     </div>
