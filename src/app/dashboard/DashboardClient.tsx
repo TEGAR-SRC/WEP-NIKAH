@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
+import { TableSkeleton, CardSkeleton } from "@/components/Skeleton";
 
 type Guest = { id: string; name: string; slug: string; phone: string | null; status: string; title: string };
 type Comment = { id: string; guestId: string; message: string; confirm: string; createdAt: string; guest: { name: string } };
@@ -131,6 +132,7 @@ export default function DashboardClient() {
 
 function GuestsTab() {
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [title, setTitle] = useState("Bapak/Ibu");
   const [phone, setPhone] = useState("");
@@ -139,7 +141,7 @@ function GuestsTab() {
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
-  const fetchGuests = async () => { const r = await fetch("/api/guests"); if (r.ok) setGuests(await r.json()); };
+  const fetchGuests = async () => { setLoading(true); const r = await fetch("/api/guests"); if (r.ok) setGuests(await r.json()); setLoading(false); };
   useEffect(() => { fetchGuests(); }, []);
 
   const addGuest = async () => {
@@ -159,11 +161,7 @@ function GuestsTab() {
   const totalPages = Math.max(1, Math.ceil(guests.length / rowsPerPage));
   const paged = guests.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
-  const pagBtn = (disabled: boolean, onClick: () => void, label: string, active?: boolean) => (
-    <button disabled={disabled} onClick={onClick}
-      style={{ padding: "3px 8px", border: "1px solid var(--inv-border)", borderRadius: 4, background: active ? "var(--inv-accent)" : "var(--inv-bg)", color: disabled ? "var(--inv-border)" : active ? "var(--btn-color)" : "var(--inv-base)", cursor: disabled ? "default" : "pointer", fontSize: 12, fontWeight: active ? 700 : 400 }}>{label}</button>
-  );
-
+  if (loading) return <><CardSkeleton /><TableSkeleton /></>;
   return (
     <div>
       <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
@@ -181,10 +179,10 @@ function GuestsTab() {
           {paged.map((g) => (
             <tr key={g.id}>
               <td style={s.td}>{g.name}</td><td style={s.td}>{g.title}</td><td style={s.td}><code>{g.slug}</code></td><td style={s.td}>{g.phone ?? "—"}</td><td style={s.td}>{g.status}</td>
-              <td style={s.td}>
+              <td style={s.td}><div style={{ display: "flex", gap: 6 }}>
                 <button style={s.btn()} onClick={() => { const base = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin; navigator.clipboard.writeText(`${base}/undangan/${g.slug}`); show("Link tersalin"); }}>Salin Link</button>
                 <button style={s.btn("#b33")} onClick={() => deleteGuest(g.slug)}>Hapus</button>
-              </td>
+              </div></td>
             </tr>
           ))}
           {guests.length === 0 && <tr><td style={s.td} colSpan={6}>Belum ada tamu.</td></tr>}
