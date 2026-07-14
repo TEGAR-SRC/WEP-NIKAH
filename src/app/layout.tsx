@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import VisitTracker from "@/components/VisitTracker";
 import { Marcellus, DM_Serif_Display, Great_Vibes } from "next/font/google";
 import "./globals.css";
 
@@ -51,7 +52,7 @@ export default function RootLayout({
       lang="id"
       className={`${marcellus.variable} ${dmSerifDisplay.variable} ${greatVibes.variable}`}
     >
-      <body className="font-base">{children}</body>
+      <body className="font-base">{children}<VisitTracker /></body>
     </html>
   );
 }

@@ -10,22 +10,22 @@ let connecting = false;
 let qrExpired = false;
 
 const SESSION_DIR = join(process.cwd(), "wa_session");
-if (!existsSync(SESSION_DIR)) mkdirSync(SESSION_DIR, { recursive: true });
 
-async function isSessionValid() {
-  try {
-    const files = await fsReaddir(SESSION_DIR);
-    return files.includes("creds.json");
-  } catch {
-    return false;
-  }
+function ensureDir() {
+  if (!existsSync(SESSION_DIR)) mkdirSync(SESSION_DIR, { recursive: true });
 }
+
+ensureDir();
 
 export async function connectWA() {
   if (sock || connecting) return;
   connecting = true;
   qrBuffer = null;
   qrExpired = false;
+
+  // Start fresh every time — wipe any stale creds before connecting
+  try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
+  ensureDir();
 
   const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
 
@@ -34,28 +34,24 @@ export async function connectWA() {
     printQRInTerminal: false,
     syncFullHistory: false,
     browser: ["Nikah WA", "Chrome", "1.0"],
-    qrTimeout: 30, // QR valid 30 detik
+    qrTimeout: 30,
     emitOwnEvents: false,
   });
 
   sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
-    // Only capture first QR, ignore regenerated ones
-    if (qr && !connected && !qrBuffer) {
-      qrBuffer = qr;
-    }
+    if (qr && !connected && !qrBuffer) qrBuffer = qr;
 
     if (connection === "close") {
       const reason = new Boom(lastDisconnect?.error).output.statusCode;
       connected = false;
       connecting = false;
       qrExpired = true;
+      sock = null;
 
       if (reason === DisconnectReason.loggedOut) {
         try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
-        mkdirSync(SESSION_DIR, { recursive: true });
+        ensureDir();
       }
-
-      sock = null;
     }
 
     if (connection === "open") {
@@ -87,7 +83,7 @@ export function disconnectWA() {
 export function deleteSession() {
   disconnectWA();
   try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
-  mkdirSync(SESSION_DIR, { recursive: true });
+  ensureDir();
 }
 
 export function getStatus() {
@@ -97,8 +93,4 @@ export function getStatus() {
 export async function getSock() {
   if (!connected) return null;
   return sock;
-}
-
-function fsReaddir(dir: string): Promise<string[]> {
-  return new Promise((resolve) => readdir(dir, (err, files) => resolve(err ? [] : files)));
 }

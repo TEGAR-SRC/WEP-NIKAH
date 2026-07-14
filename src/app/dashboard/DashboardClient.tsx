@@ -227,36 +227,80 @@ function TemplateTab() {
 }
 
 type GuestStat = { id: string; name: string; title: string; slug: string; phone: string | null; opened: boolean; visitCount: number; lastVisit: string | null; waSent: boolean };
-type StatsData = { totalGuests: number; totalVisits: number; uniqueVisitors: number; openedCount: number; notOpenedCount: number; guestStats: GuestStat[] };
+type ChartDay = { date: string; count: number; unique: number };
+type PathStat = { path: string; count: number };
+type RecentVisit = { id: string; type: string; guestId: string | null; ip: string; ua: string; path: string; time: string };
+type StatsData = { totalGuests: number; totalVisits: number; totalPageviews: number; uniqueVisitors: number; openedCount: number; notOpenedCount: number; guestStats: GuestStat[]; chart: ChartDay[]; topPaths: PathStat[]; recent: RecentVisit[] };
 
 function StatsTab() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "opened" | "not">("all");
+  const [showRecent, setShowRecent] = useState(false);
 
   useEffect(() => { fetch("/api/stats").then((r) => r.json()).then(setStats).catch(() => {}); }, []);
 
   if (!stats) return <div style={{ fontSize: 13 }}>Memuat...</div>;
 
-  const filtered = stats.guestStats.filter((g) => g.name.toLowerCase().includes(search.toLowerCase()));
+  const maxChart = Math.max(...stats.chart.map((c) => c.count), 1);
+  const filtered = stats.guestStats
+    .filter((g) => g.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((g) => filter === "all" || (filter === "opened" ? g.opened : !g.opened));
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      {/* Clickable stat cards */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
-          { label: "Total Tamu", value: stats.totalGuests },
-          { label: "Total Kunjungan", value: stats.totalVisits },
-          { label: "Pengunjung Unik", value: stats.uniqueVisitors },
-          { label: "Sudah Buka", value: stats.openedCount },
-          { label: "Belum Buka", value: stats.notOpenedCount },
-        ].map(({ label, value }) => (
-          <div key={label} style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
+          { label: "Total Tamu", value: stats.totalGuests, key: "all" as const },
+          { label: "Total Kunjungan", value: stats.totalVisits, key: "all" as const },
+          { label: "Total Pageview", value: stats.totalPageviews, key: "all" as const },
+          { label: "Pengunjung Unik", value: stats.uniqueVisitors, key: "all" as const },
+          { label: "Sudah Buka", value: stats.openedCount, key: "opened" as const },
+          { label: "Belum Buka", value: stats.notOpenedCount, key: "not" as const },
+        ].map(({ label, value, key }) => (
+          <div key={label} onClick={() => key !== "all" && setFilter(key)}
+            style={{ flex: "1 0 120px", padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center", cursor: key !== "all" ? "pointer" : "default", background: filter === key ? "rgba(174,116,0,0.08)" : "transparent" }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
-            <div style={{ fontSize: 11, marginTop: 4, opacity: 0.7 }}>{label}</div>
+            <div style={{ fontSize: 10, marginTop: 4, opacity: 0.7 }}>{label}</div>
           </div>
         ))}
       </div>
-      <div style={{ marginBottom: 12 }}>
-        <input style={s.input} placeholder="Cari tamu..." value={search} onChange={(e) => setSearch(e.target.value)} />
+
+      {/* Chart */}
+      {stats.chart.length > 0 && (
+        <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Kunjungan 14 Hari Terakhir</div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 80 }}>
+            {stats.chart.map((d) => (
+              <div key={d.date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div title={`${d.date}: ${d.count} kunjungan, ${d.unique} unik`} style={{ width: "100%", background: "var(--inv-accent)", height: `${(d.count / maxChart) * 70}px`, borderRadius: "4px 4px 0 0", minHeight: 4, opacity: 0.8 }} />
+                <div style={{ fontSize: 8, marginTop: 2, opacity: 0.5, transform: "rotate(-45deg)" }}>{d.date.slice(5)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top paths */}
+      {stats.topPaths.length > 0 && (
+        <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Halaman Terpopuler</div>
+          {stats.topPaths.map((p) => (
+            <div key={p.path} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, padding: "2px 0", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+              <span style={{ opacity: 0.7 }}>{p.path}</span>
+              <span style={{ fontWeight: 600 }}>{p.count}x</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Guest table */}
+      <div style={{ marginBottom: 12, display: "flex", gap: 8, alignItems: "center" }}>
+        <input style={{ ...s.input, flex: 1 }} placeholder="Cari tamu..." value={search} onChange={(e) => setSearch(e.target.value)} />
+        <button style={s.btn(filter === "all" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("all")}>Semua</button>
+        <button style={s.btn(filter === "opened" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("opened")}>Sudah</button>
+        <button style={s.btn(filter === "not" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("not")}>Belum</button>
       </div>
       <table style={s.table}>
         <thead><tr>
@@ -267,7 +311,7 @@ function StatsTab() {
             <tr key={g.id}>
               <td style={s.td}>{g.title} {g.name}</td>
               <td style={s.td}><code style={{ fontSize: 11 }}>{g.slug}</code></td>
-              <td style={s.td}><span style={{ fontSize: 13 }}>{g.opened ? "✅" : "❌"}</span></td>
+              <td style={s.td}>{g.opened ? "✅" : "❌"}</td>
               <td style={s.td}>{g.visitCount}x</td>
               <td style={s.td}>{g.lastVisit ? new Date(g.lastVisit).toLocaleDateString("id-ID") : "—"}</td>
               <td style={s.td}>{g.waSent ? "✅" : "—"}</td>
@@ -276,6 +320,31 @@ function StatsTab() {
           {filtered.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
         </tbody>
       </table>
+
+      {/* Recent visits toggle */}
+      <div style={{ marginTop: 16 }}>
+        <button style={s.btn("var(--inv-base)")} onClick={() => setShowRecent(!showRecent)}>
+          {showRecent ? "Sembunyikan" : "Lihat"} Kunjungan Terbaru ({stats.recent.length})
+        </button>
+        {showRecent && (
+          <div style={{ marginTop: 8, maxHeight: 300, overflowY: "auto", border: "1px solid var(--inv-border)", borderRadius: 8, padding: 8 }}>
+            <table style={{ ...s.table, fontSize: 11 }}>
+              <thead><tr><th style={s.th}>Waktu</th><th style={s.th}>Tipe</th><th style={s.th}>IP</th><th style={s.th}>Halaman</th><th style={s.th}>UA</th></tr></thead>
+              <tbody>
+                {stats.recent.map((r) => (
+                  <tr key={r.id}>
+                    <td style={s.td}>{new Date(r.time).toLocaleString("id-ID")}</td>
+                    <td style={s.td}>{r.type === "visit" ? "📩" : "👁"}</td>
+                    <td style={s.td}><code>{r.ip}</code></td>
+                    <td style={s.td}><code>{r.path}</code></td>
+                    <td style={{ ...s.td, fontSize: 10, maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.ua}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

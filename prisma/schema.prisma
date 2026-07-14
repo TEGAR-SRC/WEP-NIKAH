@@ -49,5 +49,8 @@ model Log {
   type      String
   guestId   String?
   detail    String?
+  ip        String?
+  ua        String?
+  path      String?
   createdAt DateTime @default(now())
 }
