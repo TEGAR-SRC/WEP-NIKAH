@@ -159,6 +159,14 @@ function Home() {
     };
   }, [showVideo, isOpen, goToSlide]);
 
+  // Send thank-you WA when guest opens invitation
+  useEffect(() => {
+    if (isOpen && guest.id && !localStorage.getItem(`wa_thanks_${guest.id}`)) {
+      localStorage.setItem(`wa_thanks_${guest.id}`, "1");
+      fetch("/api/wa/thank-you", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id }) }).catch(() => {});
+    }
+  }, [isOpen, guest.id]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !isOpen || showVideo) return;
