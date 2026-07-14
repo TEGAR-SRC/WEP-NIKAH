@@ -1,61 +1,122 @@
 # 💍 WEP-NIKAH
 
-Selamat datang di **WEP-NIKAH**.
+Undangan pernikahan digital dengan fitur lengkap: link unik per tamu, guestbook, dashboard admin, WhatsApp Baileys, statistik kunjungan, dan proteksi captcha.
 
-Repository ini merupakan proyek pribadi yang saya kembangkan sebagai platform website undangan pernikahan digital dengan memanfaatkan teknologi web modern. Proyek ini saya bangun untuk menghadirkan website wedding yang memiliki tampilan elegan, performa tinggi, serta struktur kode yang rapi sehingga mudah dipelajari, dimodifikasi, dan dikembangkan.
-
-🌐 **Website Demo:** **https://nikah.tegar-src.xyz**
-
-Selain menjadi proyek pribadi, repository ini juga saya buka untuk umum sebagai referensi bagi developer yang ingin mempelajari implementasi **Next.js App Router** dalam membangun aplikasi Full Stack dengan pendekatan yang modern.
-
-Saya percaya bahwa sebuah proyek akan terus berkembang seiring bertambahnya pengalaman, masukan, dan kontribusi dari komunitas. Oleh karena itu, siapa pun dipersilakan untuk menggunakan repository ini sebagai bahan pembelajaran maupun sebagai dasar dalam membangun proyek lainnya.
-
-## ✨ Teknologi yang Digunakan
-
-* Next.js (App Router)
-* TypeScript
-* shadcn/ui
-* Tailwind CSS
-* PostgreSQL
-* Prisma ORM
-* S3 Compatible Object Storage
-
-## 🎯 Tujuan Proyek
-
-Proyek ini dibuat dengan tujuan untuk:
-
-* Membangun platform website undangan pernikahan digital yang modern.
-* Mengimplementasikan arsitektur Full Stack menggunakan Next.js App Router.
-* Menjadi referensi pengembangan aplikasi berbasis PostgreSQL.
-* Mengintegrasikan penyimpanan file menggunakan S3 Compatible Object Storage.
-* Menyediakan struktur project yang bersih, scalable, dan mudah dikembangkan.
-
-## 🤝 Kontribusi
-
-Repository ini bersifat **open source**.
-
-Apabila Anda menemukan bug, memiliki ide pengembangan, atau ingin menambahkan fitur baru, silakan membuat **Issue** ataupun mengirimkan **Pull Request**. Setiap kontribusi sangat saya hargai dan akan menjadi bagian dari perkembangan proyek ini.
-
-## 💬 Catatan
-
-Kode yang ada di repository ini ditulis berdasarkan pengalaman dan cara saya dalam membangun sebuah aplikasi. Mungkin masih terdapat kekurangan atau pendekatan yang berbeda dengan developer lain, sehingga saya sangat terbuka terhadap kritik, saran, maupun diskusi yang bersifat membangun.
-
-Semoga repository ini dapat memberikan manfaat, baik sebagai bahan pembelajaran maupun sebagai fondasi untuk membangun platform website pernikahan yang lebih baik.
-
-Jika repository ini membantu Anda, jangan lupa berikan ⭐ pada repository ini sebagai bentuk dukungan terhadap pengembangan proyek.
+🌐 **Demo:** [https://nikah.tegar-src.xyz](https://nikah.tegar-src.xyz)
 
 ---
 
-### 🌐 Demo Website
+## ✨ Fitur
 
-**https://nikah.tegar-src.xyz**
+| Fitur | Keterangan |
+|-------|-----------|
+| 🎬 Video intro + slide undangan | Fullscreen video, auto-slide |
+| 🔗 Link unik per tamu | `/undangan/{slug}` — proteksi akses |
+| 💬 Guestbook + Captcha | Ucapan & konfirmasi kehadiran |
+| 📊 Dashboard admin | CRUD tamu, template, statistik |
+| 📈 Statistik kunjungan | Chart, IP, pageview, filter tanggal |
+| 📱 WhatsApp Baileys | QR scan, kirim pesan per tamu / blast |
+| 🛡️ Turnstile Captcha | Proteksi form komentar & login |
+| ☁️ R2 Object Storage | Asset gambar/video via CDN |
+| 🔍 SEO dinamis | Sitemap, metadata per halaman |
 
-### 💻 Repository GitHub
+## 🛠️ Tech Stack
 
-**https://github.com/TEGAR-SRC/WEP-NIKAH**
+| Teknologi | Fungsi |
+|-----------|--------|
+| **Next.js 16** — App Router | Framework utama |
+| **TypeScript** | Type safety |
+| **PostgreSQL** + **Prisma** | Database & ORM |
+| **Cloudflare R2** | Asset storage (S3-compatible) |
+| **Cloudflare Turnstile** | Captcha |
+| **Baileys** | WhatsApp Web API |
+| **Vercel Analytics** | Visitor tracking |
+
+## 🚀 Cara Install & Jalankan
+
+```bash
+# 1. Clone
+git clone https://github.com/TEGAR-SRC/WEP-NIKAH.git
+cd WEP-NIKAH
+
+# 2. Install
+npm install
+
+# 3. Copy env
+cp .env.public .env
+# lalu isi DATABASE_URL, R2 keys, dll
+
+# 4. Setup database
+npx prisma db push
+npx tsx prisma/seed.ts
+
+# 5. Generate Prisma client
+npx prisma generate
+
+# 6. Jalankan dev
+npm run dev
+```
+
+## 🔐 Environment Variables
+
+Buka `.env.public` untuk template lengkap, lalu isi di `.env`:
+
+| Variable | Wajib | Untuk |
+|----------|-------|-------|
+| `DATABASE_URL` | ✅ | PostgreSQL / SQLite |
+| `NEXT_PUBLIC_BASE_URL` | ✅ | Domain publik |
+| `R2_ENDPOINT` | ✅ | S3 endpoint |
+| `R2_ACCESS_KEY_ID` | ✅ | S3 access key |
+| `R2_SECRET_ACCESS_KEY` | ✅ | S3 secret key |
+| `R2_BUCKET` | ✅ | Bucket name |
+| `R2_PREFIX` | ✅ | Prefix path |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | ✅ | Turnstile site key |
+| `TURNSTILE_SECRET_KEY` | ✅ | Turnstile secret key |
+
+## 📂 Struktur Folder
+
+```
+src/
+├── app/
+│   ├── api/          # API routes (auth, guests, comments, wa, stats, r2)
+│   ├── dashboard/    # Admin dashboard (login + tabs)
+│   ├── undangan/     # Undangan per slug
+│   └── layout.tsx    # Root layout + fonts + analytics
+├── components/       # React components (slides, guestbook, skeleton)
+└── lib/              # Prisma client, WA service, guest context
+prisma/
+├── schema.prisma     # Database schema
+└── seed.ts           # Seed data (10 tamu, 20 ucapan, 10 template)
+```
+
+## 🌐 Deployment
+
+### Vercel (rekomendasi)
+```bash
+npm run build    # prisma generate + next build
+```
+Set env vars di Vercel Dashboard → Settings → Environment Variables.
+
+### Cloudflare Workers
+```bash
+npm run build:cf    # opennextjs-cloudflare build
+npm run deploy:cf   # wrangler deploy
+```
+Set env vars di Cloudflare Dashboard → Workers & Pages → Settings → Variables.
+
+> **Catatan:** Fitur WhatsApp Baileys membutuhkan Node.js persistent — tidak jalan di Cloudflare Workers. Gunakan VPS/Vercel untuk fitur WA.
+
+## 📊 Akun Default (Dashboard)
+
+| Email | Password |
+|-------|----------|
+| admin@nikah.com | admin123 |
+
+## 📄 Lisensi
+
+Open source — bebas digunakan untuk pembelajaran dan pengembangan.
 
 ---
 
-**Dikembangkan oleh TEGAR-SRC** ❤️
-
-*"Code is never truly finished, it only gets better with every commit."*
+**Dikembangkan oleh [tegararrahman](https://github.com/TEGAR-SRC)**
+Dibangun dengan Next.js · Go · Redis · TypeScript · Tailwind CSS
