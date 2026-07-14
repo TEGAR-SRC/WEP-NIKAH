@@ -235,6 +235,7 @@ function KirimWATab() {
   const [waConnected, setWaConnected] = useState(false);
   const [waConnecting, setWaConnecting] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
+  const [qrExpired, setQrExpired] = useState(false);
   const [sending, setSending] = useState(false);
   const [logs, setLogs] = useState<WALog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
@@ -246,8 +247,9 @@ function KirimWATab() {
       const d = await r.json();
       setWaConnected(d.connected);
       setWaConnecting(d.connecting);
-      if (d.qr) setQrCode(d.qr);
-      if (d.connected) setQrCode(null);
+      if (d.qr && !d.connected) setQrCode(d.qr);
+      if (d.connected) { setQrCode(null); setQrExpired(false); }
+      if (d.qrExpired) setQrExpired(true);
     } catch {}
   }, []);
 
@@ -304,12 +306,18 @@ function KirimWATab() {
         </div>
       </div>
 
-      {!waConnected && qrCode && (
+      {!waConnected && qrCode && !qrExpired && (
         <div style={{ textAlign: "center", padding: "16px 0", borderBottom: "1px solid var(--inv-border)", marginBottom: 16 }}>
           <img src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrCode)}`} alt="QR" style={{ width: 220, height: 220, borderRadius: 8 }} />
           <div style={{ fontSize: 12, marginTop: 10, color: "var(--inv-base)", opacity: 0.7 }}>
             Scan dengan WhatsApp {"=>"} Titik Tiga {"=>"} Perangkat Tertaut
           </div>
+        </div>
+      )}
+      {!waConnected && qrExpired && (
+        <div style={{ textAlign: "center", padding: "16px 0", borderBottom: "1px solid var(--inv-border)", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "#c00", marginBottom: 8 }}>QR code kadaluarsa. Klik Hubungkan lagi.</div>
+          <button style={s.btn("var(--inv-accent)")} onClick={() => { fetch("/api/wa/connect", { method: "POST" }); show("Menghubungkan..."); setQrExpired(false); }}>Hubungkan Ulang</button>
         </div>
       )}
 
