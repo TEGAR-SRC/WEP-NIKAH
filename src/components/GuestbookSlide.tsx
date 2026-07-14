@@ -38,7 +38,7 @@ export default function GuestbookSlide() {
   };
 
   return (
-    <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
+    <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
       <SlideFrame />
       <div style={{ height: "100%", padding: "20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
         <div style={{
