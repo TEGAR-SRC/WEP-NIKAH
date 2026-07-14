@@ -490,6 +490,7 @@ function KirimWATab() {
   const [waConnecting, setWaConnecting] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [qrExpired, setQrExpired] = useState(false);
+  const [waInit, setWaInit] = useState(false);
   const [sending, setSending] = useState(false);
   const [logs, setLogs] = useState<WALog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
@@ -497,17 +498,19 @@ function KirimWATab() {
   const [waRows, setWaRows] = useState(10);
   const { show } = useContext(NotifCtx);
 
+  const doConnect = () => { fetch("/api/wa/connect", { method: "POST" }); setWaInit(true); show("Menghubungkan..."); };
+
   const checkWA = useCallback(async () => {
     try {
       const r = await fetch("/api/wa/status");
       const d = await r.json();
       setWaConnected(d.connected);
       setWaConnecting(d.connecting);
-      if (d.qr && !d.connected) setQrCode(d.qr);
+      if (d.qr && !d.connected && waInit) setQrCode(d.qr);
       if (d.connected) { setQrCode(null); setQrExpired(false); }
-      if (d.qrExpired) setQrExpired(true);
+      if (d.qrExpired && waInit) setQrExpired(true);
     } catch {}
-  }, []);
+  }, [waInit]);
 
   useEffect(() => {
     checkWA();
@@ -566,7 +569,7 @@ function KirimWATab() {
           <span style={{ fontSize: 13 }}>WhatsApp: <strong>{statusText}</strong></span>
         </div>
         <div style={{ display: "flex", gap: 6 }}>
-          {!waConnected && !waConnecting && <button style={s.btn("var(--inv-accent)")} onClick={() => { fetch("/api/wa/connect", { method: "POST" }); show("Menghubungkan..."); }}>Hubungkan</button>}
+          {!waConnected && !waConnecting && <button style={s.btn("var(--inv-accent)")} onClick={doConnect}>Hubungkan</button>}
           {waConnecting && <button style={s.btn("#ffc107")} onClick={() => { fetch("/api/wa/disconnect", { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } }); show("Dibatalkan"); }}>Batal</button>}
           {waConnected && <button style={s.btn("#dc3545")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: false }), headers: { "Content-Type": "application/json" } }); show("Terputus"); }}>Putuskan</button>}
           <button style={s.btn("#b33")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: true }), headers: { "Content-Type": "application/json" } }); show("Sesi dihapus"); }}>Hapus Sesi</button>
@@ -585,7 +588,7 @@ function KirimWATab() {
       {!waConnected && qrExpired && (
         <div style={{ textAlign: "center", padding: "16px 0", borderBottom: "1px solid var(--inv-border)", marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: "#c00", marginBottom: 8 }}>QR code kadaluarsa. Klik Hubungkan lagi.</div>
-          <button style={s.btn("var(--inv-accent)")} onClick={() => { fetch("/api/wa/connect", { method: "POST" }); show("Menghubungkan..."); setQrExpired(false); }}>Hubungkan Ulang</button>
+          <button style={s.btn("var(--inv-accent)")} onClick={doConnect}>Hubungkan Ulang</button>
         </div>
       )}
 
