@@ -215,21 +215,22 @@ function Home() {
     >
       <Preloader />
       <audio ref={audioRef} src="/api/r2/public/audio/song-of-sabdatama-wqaeg-2.mp3" loop />
-      <div style={{
-        position: "fixed", top: 0, left: 0, zIndex: showVideo ? 10 : -1,
-        width: "100%", height: "100dvh", background: "#000",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        opacity: showVideo ? 1 : 0, pointerEvents: showVideo ? "auto" : "none",
-        transition: "opacity 0.3s",
-      }} onClick={() => { if (canSkip) handleEnterSlides(); }}>
-        <video
-          ref={videoRef}
-          src="/api/r2/public/VIDIO/The Wedding of Masrul & Maya.mp4"
-          preload="auto" muted playsInline autoPlay
-          onTimeUpdate={handleTimeUpdate}
-          style={{ width: "100%", maxWidth: 480, height: "100%", objectFit: "cover" }}
-        />
-      </div>
+      <video
+        ref={videoRef}
+        src="/api/r2/public/VIDIO/The Wedding of Masrul & Maya.mp4"
+        preload="auto" muted playsInline autoPlay
+        onTimeUpdate={handleTimeUpdate}
+        onClick={() => { if (canSkip) handleEnterSlides(); }}
+        style={{
+          position: "fixed", top: 0, left: 0,
+          zIndex: showVideo ? 10 : -1,
+          width: "100%", height: "100dvh",
+          objectFit: "cover",
+          opacity: showVideo ? 1 : 0,
+          pointerEvents: showVideo ? "auto" : "none",
+          transition: "opacity 0.3s",
+        }}
+      />
       <div
         style={{
           position: "fixed",
