@@ -224,7 +224,9 @@ function Home() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "#000",
+                backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
                 position: "relative",
                 cursor: canSkip ? "pointer" : "default",
               }}
@@ -236,6 +238,7 @@ function Home() {
                 autoPlay
                 playsInline
                 muted
+                preload="auto"
                 onTimeUpdate={handleTimeUpdate}
                 style={{
                   width: "100%",
