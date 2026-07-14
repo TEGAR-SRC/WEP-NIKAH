@@ -3,23 +3,31 @@ import { CoupleIcon } from "./icons";
 
 export default function StorySlide() {
   return (
-    <div className="container-mobile" style={{ backgroundImage: "url(/images/satumomen/bg.webp)" }}>
+    <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
       <SlideFrame />
-      <div className="flex justify-center items-center text-center" style={{ height: "100%" }}>
-        <div style={{ width: "100%" }}>
-          <div className="animate__animated animate__fadeInDown animate__slower" style={{ width: "240px", height: "135px", margin: "auto", overflow: "hidden", paddingBottom: "24px" }}>
-            <img src="/images/satumomen/ilustrasi.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} draggable={false} />
+      <div className="flex justify-center items-center text-center" style={{ height: "100%", padding: "20px" }}>
+        <div className="animate__animated animate__fadeIn animate__slower" style={{
+          width: "100%",
+          background: "rgba(228,221,215,0.6)",
+          backdropFilter: "blur(4px)",
+          borderRadius: 24,
+          padding: "28px 20px",
+          border: "1px solid rgba(255,255,255,0.3)",
+        }}>
+          <div style={{ width: 160, height: 90, margin: "auto", overflow: "hidden" }}>
+            <img src="/api/r2/public/images/satumomen/ilustrasi.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} draggable={false} />
           </div>
-          <div className="font-latin color-accent mb-3 animate__animated animate__fadeInDown animate__slower" style={{ fontSize: "36px" }}>
+          <div style={{ width: 40, height: 2, background: "var(--inv-accent)", margin: "12px auto 16px", opacity: 0.4 }} />
+          <div className="font-latin color-accent" style={{ fontSize: 32, marginBottom: 8 }}>
             Awal Bertemu
           </div>
-          <div className="animate__animated animate__fadeInUp animate__slower" style={{ fontSize: "18px", padding: "0 24px", lineHeight: "1.8" }}>
+          <div style={{ fontSize: 14, padding: "0 16px", lineHeight: 2, color: "var(--inv-base)" }}>
             Berawal dari sebuah pertemuan yang tidak terduga,<br />
             hati kami dipertemukan dalam ikatan cinta.<br />
             Setiap hari adalah cerita indah<br />
             yang kami tulis bersama.
           </div>
-          <div className="animate__animated animate__fadeInUp animate__slower" style={{ paddingTop: "40px" }}>
+          <div style={{ marginTop: 24 }}>
             <CoupleIcon />
           </div>
         </div>

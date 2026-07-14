@@ -10,7 +10,7 @@ const protocols = [
 
 export default function ProtocolSlide() {
   return (
-    <div className="container-mobile" style={{ backgroundImage: "url(/images/satumomen/bg.webp)" }}>
+    <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
       <SlideFrame />
       <div className="flex justify-center items-center" style={{ height: "100%", width: "100%" }}>
         <div>
