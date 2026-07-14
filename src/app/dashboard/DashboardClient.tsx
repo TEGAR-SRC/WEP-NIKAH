@@ -6,9 +6,9 @@ import { TableSkeleton, CardSkeleton } from "@/components/Skeleton";
 type Guest = { id: string; name: string; slug: string; phone: string | null; status: string; title: string };
 type Comment = { id: string; guestId: string; message: string; confirm: string; createdAt: string; guest: { name: string } };
 type Template = { id: string; name: string; subject: string; body: string };
-type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA" | "Statistik";
+type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA" | "Statistik" | "Admin";
 
-const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA", "Statistik"];
+const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA", "Statistik", "Admin"];
 const TITLES = ["Bapak", "Ibu", "Bapak/Ibu"];
 
 function slugify(name: string) {
@@ -124,6 +124,7 @@ export default function DashboardClient() {
           {tab === "Template" && <TemplateTab />}
           {tab === "Kirim WA" && <KirimWATab />}
           {tab === "Statistik" && <StatsTab />}
+          {tab === "Admin" && <AdminTab />}
         </ConfirmProvider>
       </NotifProvider>
       <footer style={{ marginTop: 40, padding: "24px 0", borderTop: "1px solid var(--inv-border)", textAlign: "center", lineHeight: 1.8 }}>
@@ -474,6 +475,94 @@ function StatsTab() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+type AdminUser = { id: string; email: string; createdAt: string };
+
+function AdminTab() {
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const { show } = useContext(NotifCtx);
+  const { ask } = useContext(ConfirmCtx);
+
+  const fetchAdmins = async () => {
+    setLoading(true);
+    const r = await fetch("/api/admin");
+    if (r.ok) setAdmins(await r.json());
+    setLoading(false);
+  };
+  useEffect(() => { fetchAdmins(); }, []);
+
+  const addAdmin = async () => {
+    if (!email.trim() || !password.trim()) { show("Isi email dan password", "err"); return; }
+    const r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.trim(), password }) });
+    if (r.ok) { setEmail(""); setPassword(""); fetchAdmins(); show("Admin ditambahkan"); }
+    else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+  };
+
+  const updateAdmin = async (id: string) => {
+    if (!editEmail.trim() && !editPassword.trim()) { show("Isi email atau password baru", "err"); return; }
+    const body: Record<string, string> = {};
+    if (editEmail.trim()) body.email = editEmail.trim();
+    if (editPassword.trim()) body.password = editPassword;
+    const r = await fetch(`/api/admin/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (r.ok) { setEditId(null); setEditEmail(""); setEditPassword(""); fetchAdmins(); show("Admin diupdate"); }
+    else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+  };
+
+  const deleteAdmin = async (id: string) => {
+    if (!(await ask("Hapus admin ini?"))) return;
+    await fetch(`/api/admin/${id}`, { method: "DELETE" });
+    fetchAdmins(); show("Admin dihapus");
+  };
+
+  if (loading) return <div style={{ padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}><TableSkeleton cols={3} rows={3} /></div>;
+
+  return (
+    <div>
+      <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 0 200px" }}><label style={s.label}>Email</label><input style={s.input} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@nikah.com" /></div>
+          <div style={{ flex: "1 0 150px" }}><label style={s.label}>Password</label><input style={s.input} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 karakter" /></div>
+          <div><button style={s.btn()} onClick={addAdmin}>Tambah Admin</button></div>
+        </div>
+      </div>
+      <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}><table style={s.table}>
+        <thead><tr><th style={s.th}>Email</th><th style={s.th}>Dibuat</th><th style={s.th}>Aksi</th></tr></thead>
+        <tbody>
+          {admins.map((a) => (
+            <tr key={a.id}>
+              {editId === a.id ? (
+                <>
+                  <td style={s.td}><input style={s.input} value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder={a.email} /></td>
+                  <td style={s.td}>{new Date(a.createdAt).toLocaleDateString("id-ID")}</td>
+                  <td style={s.td}>
+                    <button style={s.btn()} onClick={() => updateAdmin(a.id)}>Simpan</button>
+                    <button style={s.btn("var(--inv-base)")} onClick={() => { setEditId(null); setEditEmail(""); setEditPassword(""); }}>Batal</button>
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td style={s.td}>{a.email}</td>
+                  <td style={s.td}>{new Date(a.createdAt).toLocaleDateString("id-ID")}</td>
+                  <td style={s.td}>
+                    <button style={s.btn()} onClick={() => { setEditId(a.id); setEditEmail(a.email); setEditPassword(""); }}>Edit</button>
+                    <button style={s.btn("#b33")} onClick={() => deleteAdmin(a.id)}>Hapus</button>
+                  </td>
+                </>
+              )}
+            </tr>
+          ))}
+          {admins.length === 0 && <tr><td style={s.td} colSpan={3}>Belum ada admin.</td></tr>}
+        </tbody>
+      </table></div>
     </div>
   );
 }

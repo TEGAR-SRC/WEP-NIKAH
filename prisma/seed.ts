@@ -1,11 +1,9 @@
 import { PrismaClient } from "../src/generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { createHash } from "crypto";
+import { hash } from "argon2";
 
 const url = process.env.DATABASE_URL ?? "postgresql://xxken:xxkenxyz@104.250.122.51:35432/nikah";
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
-
-const hash = (pw: string) => createHash("sha256").update(pw).digest("hex");
 
 const guests = [
   { name: "Vebriza Juinda Putri Zahara", slug: "vebriza", phone: "6281234567890", title: "Ibu" },
@@ -259,7 +257,7 @@ async function main() {
   await prisma.admin.upsert({
     where: { email: "admin@nikah.com" },
     update: {},
-    create: { email: "admin@nikah.com", password: hash("admin123") },
+    create: { email: "admin@nikah.com", password: await hash("admin123", { type: 2 }) },
   });
 
   await prisma.comment.deleteMany();

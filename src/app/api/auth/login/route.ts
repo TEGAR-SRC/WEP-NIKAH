@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createHash } from "crypto";
+import { verify } from "argon2";
 import { prisma } from "@/lib/prisma";
 
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY ?? "";
@@ -11,7 +11,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email dan password diperlukan" }, { status: 400 });
   }
 
-  // Verify Turnstile
   if (TURNSTILE_SECRET) {
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
@@ -25,7 +24,16 @@ export async function POST(req: Request) {
   }
 
   const admin = await prisma.admin.findUnique({ where: { email } });
-  if (!admin || admin.password !== createHash("sha256").update(password).digest("hex")) {
+  if (!admin) {
+    return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
+  }
+
+  try {
+    const valid = await verify(admin.password, password);
+    if (!valid) {
+      return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
+    }
+  } catch {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
 
