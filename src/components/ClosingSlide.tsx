@@ -27,11 +27,16 @@ export default function ClosingSlide() {
               <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/github/dark.svg" alt="GitHub" style={{ height: 12, margin: "0 2px" }} />
               <span>tegararrahman</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 3, alignItems: "center" }}>
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/nextdotjs/wordmark.svg" alt="Next.js" style={{ height: 10, opacity: 0.6 }} />
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/go/default.svg" alt="Go" style={{ height: 12, opacity: 0.6 }} />
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/postgresql/default.svg" alt="PostgreSQL" style={{ height: 12, opacity: 0.6 }} />
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/redis/default.svg" alt="Redis" style={{ height: 12, opacity: 0.6 }} />
+            <div style={{ display: "flex", justifyContent: "center", gap: 5, marginTop: 3, alignItems: "center" }}>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/nextdotjs/wordmark-light.svg" alt="Next.js" style={{ height: 10, opacity: 0.6 }} />
+              <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/go/dark.svg" alt="Go" style={{ height: 11, opacity: 0.6 }} />
+              <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/redis/default.svg" alt="Redis" style={{ height: 11, opacity: 0.6 }} />
+              <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/typescript/default.svg" alt="TypeScript" style={{ height: 11, opacity: 0.6 }} />
+              <span style={{ color: "#000", fontSize: 8, opacity: 0.3 }}>●</span>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/tailwindcss/default.svg" alt="Tailwind" style={{ height: 10, opacity: 0.6 }} />
             </div>
           </div>
         </div>
