@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStatus, getSock } from "@/lib/wa";
+import { getStatus, sendMessage } from "@/lib/wa";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
@@ -13,16 +13,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Tamu tidak ditemukan atau nomor WA tidak ada" }, { status: 400 });
   }
 
-  const { connected } = getStatus();
+  const { connected } = await getStatus();
   if (!connected) {
     return NextResponse.json({ error: "WhatsApp belum terhubung" }, { status: 400 });
   }
 
   try {
-    const sock = await getSock();
-    if (!sock) throw new Error("Socket not available");
-    const jid = guest.phone.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
-    await sock.sendMessage(jid, { text: message });
+    await sendMessage(guest.phone, message);
     await prisma.log.create({
       data: { type: "sent_wa", guestId: guest.id, detail: `WA ke ${guest.phone} berhasil` },
     });

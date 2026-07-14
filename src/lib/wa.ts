@@ -1,96 +1,64 @@
-import makeWASocket, { DisconnectReason, useMultiFileAuthState } from "@whiskeysockets/baileys";
-import { Boom } from "@hapi/boom";
-import { mkdirSync, existsSync, rmSync, readdir } from "fs";
-import { join } from "path";
+const BASE = process.env.EVOLUTION_API_URL ?? "";
+const KEY = process.env.EVOLUTION_API_KEY ?? "";
+const INSTANCE = "nikah";
 
-let sock: ReturnType<typeof makeWASocket> | null = null;
-let qrBuffer: string | null = null;
-let connected = false;
-let connecting = false;
-let qrExpired = false;
-
-const SESSION_DIR = join(process.cwd(), "wa_session");
-
-function ensureDir() {
-  if (!existsSync(SESSION_DIR)) mkdirSync(SESSION_DIR, { recursive: true });
+async function api(method: string, path: string, body?: any) {
+  const res = await fetch(`${BASE}/${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": KEY,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Evolution API ${res.status}: ${text}`);
+  }
+  return res.json();
 }
 
-ensureDir();
-
 export async function connectWA() {
-  if (sock || connecting) return;
-  connecting = true;
-  qrBuffer = null;
-  qrExpired = false;
-
-  // Start fresh every time — wipe any stale creds before connecting
-  try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
-  ensureDir();
-
-  const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
-
-  sock = makeWASocket({
-    auth: state,
-    printQRInTerminal: false,
-    syncFullHistory: false,
-    browser: ["Nikah WA", "Chrome", "1.0"],
-    qrTimeout: 30,
-    emitOwnEvents: false,
-  });
-
-  sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
-    if (qr && !connected && !qrBuffer) qrBuffer = qr;
-
-    if (connection === "close") {
-      const reason = new Boom(lastDisconnect?.error).output.statusCode;
-      connected = false;
-      connecting = false;
-      qrExpired = true;
-      sock = null;
-
-      if (reason === DisconnectReason.loggedOut) {
-        try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
-        ensureDir();
-      }
-    }
-
-    if (connection === "open") {
-      connected = true;
-      connecting = false;
-      qrBuffer = null;
-      qrExpired = false;
-    }
-
-    if (connection === "connecting") {
-      connecting = true;
-    }
-  });
-
-  sock.ev.on("creds.update", saveCreds);
+  try {
+    await api("POST", `instance/create`, { instanceName: INSTANCE });
+  } catch {}
+  const data = await api("POST", `instance/connect`, { instanceName: INSTANCE });
+  return data;
 }
 
 export function disconnectWA() {
-  if (sock) {
-    sock.end(new Error("manual disconnect"));
-    sock = null;
-  }
-  connected = false;
-  connecting = false;
-  qrBuffer = null;
-  qrExpired = false;
+  api("POST", `instance/disconnect`, { instanceName: INSTANCE }).catch(() => {});
 }
 
 export function deleteSession() {
-  disconnectWA();
-  try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
-  ensureDir();
+  api("DELETE", `instance/delete/${INSTANCE}`).catch(() => {});
 }
 
-export function getStatus() {
-  return { connected, connecting, qr: qrBuffer, qrExpired };
+export async function getStatus() {
+  try {
+    const data = await api("GET", `instance/info/${INSTANCE}`);
+    const state = data?.instance?.state ?? data?.state ?? "";
+    return {
+      connected: state === "open",
+      connecting: state === "connecting" || state === "syncing",
+      qr: data?.base64 ?? data?.qrcode ?? null,
+      qrExpired: false,
+    };
+  } catch {
+    return { connected: false, connecting: false, qr: null, qrExpired: false };
+  }
+}
+
+export async function sendMessage(phone: string, text: string) {
+  const number = phone.replace(/[^0-9]/g, "");
+  return api("POST", "message/text", {
+    number,
+    text,
+    instanceName: INSTANCE,
+    options: { delay: 1200 },
+  });
 }
 
 export async function getSock() {
-  if (!connected) return null;
-  return sock;
+  return null;
 }
