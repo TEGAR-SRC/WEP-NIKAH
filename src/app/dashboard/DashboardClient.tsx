@@ -383,11 +383,6 @@ function TemplateTab() {
               ))}
               {thanksTemplates.length === 0 && <option value="">Tidak ada template</option>}
             </select>
-            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
-              if (!thanksActiveId) return;
-              await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-              show("Template ditetapkan sebagai default"); fetchThanks();
-            }}>Terapkan ✅</button>
             {thanksPreview && <button style={s.btn("#b33")} onClick={() => deleteTmpl(thanksActiveId!)}>Hapus</button>}
           </div>
         </div>
@@ -399,6 +394,11 @@ function TemplateTab() {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button style={s.btn()} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Simpan</button>
+          <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+            if (!thanksActiveId) return;
+            await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
+            show("Template ditetapkan sebagai default"); fetchThanks();
+          }}>Terapkan ✅</button>
           <button style={s.btn("var(--inv-base)")} onClick={() => setShowCreateThanks(!showCreateThanks)}>{showCreateThanks ? "Batal" : "Simpan Baru"}</button>
         </div>
         {showCreateThanks && (
