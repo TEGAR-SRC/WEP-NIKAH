@@ -232,6 +232,17 @@ Wassalamualaikum
 Tegar & Vebiza`,
   },
   {
+    name: "terima kasih",
+    subject: "Terima Kasih",
+    body: `Terima kasih {title} {name} sudah membuka undangan pernikahan kami 🙏
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara
+📍 KUA Batu Aji, Batam
+📅 20 Juli 2026
+
+Jangan lupa konfirmasi kehadiran di halaman undangan ya 😊`,
+  },
+  {
     name: "undangan (English)",
     subject: "Wedding Invitation — Tegar & Vebiza",
     body: `Dear {title} {name}
