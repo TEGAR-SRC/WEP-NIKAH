@@ -420,6 +420,221 @@ Terima kasih banyak atas perhatiannya.
 Wassalamualaikum
 Tegar & Vebiza`,
   },
+  // === FOLLOW-UP (reminder konfirmasi) ===
+  { name: "follow-up (default)", subject: "Konfirmasi Kehadiran", body: `Yth. {title} {name}
+
+Terima kasih sudah mengirimkan ucapan untuk pernikahan kami.
+
+Kami ingin memastikan kehadiran {title} {name}. Mohon konfirmasi melalui link undangan:
+
+{BASE_URL}/undangan/{slug}
+
+Terima kasih 🙏
+Tegar & Vebiza` },
+  { name: "follow-up (singkat)", subject: "Konfirmasi?", body: `Halo {title} {name}, makasih udah ngucapin! 😊
+
+Kami masih tunggu konfirmasi kehadiran kamu nih.
+Bisa klik link ini ya:
+{BASE_URL}/undangan/{slug}
+
+Makasih! 🙏` },
+  { name: "follow-up (resmi)", subject: "Reminder Konfirmasi", body: `Kepada {title} {name}
+
+Dengan hormat, kami mengingatkan untuk mengkonfirmasi kehadiran pada acara pernikahan kami.
+
+Silakan buka link undangan untuk konfirmasi:
+{BASE_URL}/undangan/{slug}
+
+Atas perhatiannya, terima kasih.
+Wassalamualaikum
+
+Tegar & Vebiza` },
+  { name: "follow-up (santai)", subject: "Eh, konfirm dong!", body: `Hai {title} {name}!
+
+Makasih ya udah ngirim ucapan buat kami 🎉
+
+Eh, kamu belum konfirmasi nih, datang atau enggak?
+Yuk klik link di bawah:
+{BASE_URL}/undangan/{slug}
+
+Thanks! 🥳` },
+  { name: "follow-up (WA)", subject: "Konfirmasi Yuk!", body: `{title} {name} - Makasih udah ngucap! 🙏
+
+Jangan lupa konfirmasi kehadiran ya:
+{BASE_URL}/undangan/{slug}
+
+Kami tunggu! 😊` },
+  { name: "follow-up (lengkap)", subject: "Reminder Konfirmasi Kehadiran", body: `Yth. {title} {name}
+
+Terima kasih telah memberikan ucapan & doa restu untuk pernikahan kami.
+
+Saat ini kami belum menerima konfirmasi kehadiran Anda. Mohon meluangkan waktu untuk mengkonfirmasi melalui link berikut:
+
+{BASE_URL}/undangan/{slug}
+
+Terima kasih banyak.
+Wassalamualaikum Wr. Wb.
+
+Hormat kami,
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "follow-up (doa)", subject: "Doa & Konfirmasi", body: `Assalamualaikum {title} {name}
+
+Terima kasih atas doa restu yang telah diberikan. Kami mohon konfirmasi kehadiran {title} {name} untuk kelancaran acara kami.
+
+Silakan buka:
+{BASE_URL}/undangan/{slug}
+
+Wassalamualaikum
+Tegar & Vebiza` },
+  { name: "follow-up (English)", subject: "Confirmation Reminder", body: `Dear {title} {name}
+
+Thank you for your wishes! We're still waiting for your attendance confirmation.
+
+Please click the link below:
+{BASE_URL}/undangan/{slug}
+
+Thank you! 🙏` },
+  { name: "follow-up (urgent)", subject: "Konfirmasi Segera!", body: `Kepada {title} {name}
+
+Mohon segera konfirmasi kehadiran Anda karena kami perlu mempersiapkan acara dengan baik.
+
+{BASE_URL}/undangan/{slug}
+
+Terima kasih 🙏` },
+  { name: "follow-up (sederhana)", subject: "Konfirmasi", body: `{title} {name}, yuk konfirmasi kehadiran 👉 {BASE_URL}/undangan/{slug}` },
+
+  // === HADIR ===
+  { name: "hadir (default)", subject: "Terima Kasih! ❤️", body: `Halo {title} {name}!
+
+Terima kasih sudah konfirmasi HADIR 🎉🎉
+
+Kami tunggu kehadirannya di:
+📍 KUA Batu Aji, Batam
+📅 20 Juli 2026
+
+Sampai jumpa! 🥳
+Tegar & Vebiza` },
+  { name: "hadir (resmi)", subject: "Konfirmasi Hadir", body: `Yth. {title} {name}
+
+Terima kasih atas konfirmasi kehadiran Anda. Kami sangat senang Anda dapat hadir.
+
+📋 Status: ✅ HADIR
+🗓 20 Juli 2026
+📍 KUA Batu Aji, Batam
+
+Sampai bertemu di hari bahagia kami.
+Wassalamualaikum
+
+Tegar & Vebiza` },
+  { name: "hadir (santai)", subject: "Asik! Datang! 🎉", body: `Wah, {title} {name} datang! 🎉🎉🎉
+
+Makasih banget udah konfirmasi. Kita siapin tempat spesial buat kamu!
+
+📍 KUA Batu Aji, Batam
+📅 20 Juli 2026
+
+Sampai ketemu! 🥳` },
+  { name: "hadir (singkat)", subject: "✅ Hadir", body: `{title} {name} - HADIR ✅
+
+Makasih! Sampai ketemu di hari H! 🎉` },
+  { name: "hadir (lengkap)", subject: "Konfirmasi Hadir - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+
+Alhamdulillah, kami sangat berbahagia mendengar konfirmasi kehadiran Anda.
+
+━━━━━━━━━━━━
+STATUS: ✅ HADIR
+━━━━━━━━━━━━
+
+📅 Senin, 20 Juli 2026
+⏰ 10.00 WIB
+📍 KUA Batu Aji, Batam
+
+Sampai bertemu di hari istimewa kami!
+Wassalamualaikum Wr. Wb.
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "hadir (ucapan)", subject: "Terima Kasih!", body: `{title} {name} - HADIR ✅
+
+"Barakallahulakuma wa baraka 'alaikuma wa jama'a bainakuma fi khair"
+
+Terima kasih sudah konfirmasi. Doa terbaik untuk kita semua 🤲` },
+  { name: "hadir (English)", subject: "✅ Attending", body: `Dear {title} {name}
+
+Thank you for confirming your attendance! 🎉
+
+See you on:
+📍 KUA Batu Aji, Batam
+📅 July 20, 2026
+
+Best regards,
+Tegar & Vebiza` },
+  { name: "hadir (WA)", subject: "✅ HADIR", body: `{title} {name} - HADIR ✅
+20 Juli 2026 | Batam
+Sampai ketemu! 🎉` },
+  { name: "hadir (simple)", subject: "Hadir ✅", body: `Terima kasih {title} {name} sudah konfirmasi HADIR ✅
+
+Sampai jumpa! 🎉` },
+  { name: "hadir (doa)", subject: "✅ Hadir + Doa", body: `{title} {name} - HADIR ✅
+
+Semoga Allah memberkahi pernikahan kami. Terima kasih doa & kehadirannya! 🤲🙏` },
+
+  // === TIDAK HADIR ===
+  { name: "tidak hadir (default)", subject: "Baik, Tidak Hadir", body: `Halo {title} {name}
+
+Baik, kami catat Anda TIDAK HADIR ❤️
+
+Terima kasih banyak atas doa restunya. Doa Anda tetap berarti bagi kami 🙏
+
+{TEGAR_SRC}
+Tegar & Vebiza` },
+  { name: "tidak hadir (resmi)", subject: "Konfirmasi Tidak Hadir", body: `Yth. {title} {name}
+
+Kami menerima konfirmasi bahwa Anda tidak dapat hadir.
+
+Terima kasih atas doa restu yang telah diberikan. Tanpa mengurangi rasa hormat, kami ucapkan terima kasih.
+
+Wassalamualaikum
+
+Tegar & Vebiza` },
+  { name: "tidak hadir (santai)", subject: "Yahh.. 😢", body: `Halo {title} {name}
+
+Yahh.. gak datang 😢 Tapi gapapa, kami ngerti kok!
+
+Makasih ya doanya, tetap berarti banget buat kami! ❤️🙏` },
+  { name: "tidak hadir (singkat)", subject: "❌ Tidak Hadir", body: `{title} {name} - TIDAK HADIR ❤️
+
+Makasih doanya 🙏` },
+  { name: "tidak hadir (lengkap)", subject: "Konfirmasi Tidak Hadir", body: `Assalamualaikum {title} {name}
+
+Kami menerima konfirmasi bahwa Anda tidak dapat hadir pada acara pernikahan kami.
+
+━━━━━━━━━━━━
+STATUS: ❌ TIDAK HADIR
+━━━━━━━━━━━━
+
+Terima kasih atas doa restu yang telah diberikan. Doa Anda sangat berarti bagi kami.
+
+Wassalamualaikum Wr. Wb.
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "tidak hadir (ucapan)", subject: "Doanya aja ya", body: `{title} {name}
+
+Kami catat Anda TIDAK HADIR. Terima kasih doa & ucapannya, semoga Allah membalas kebaikan Anda 🙏🤲` },
+  { name: "tidak hadir (English)", subject: "❌ Not Attending", body: `Dear {title} {name}
+
+We understand you can't attend. Thank you for your prayers and kind wishes! ❤️🙏
+
+Best regards,
+Tegar & Vebiza` },
+  { name: "tidak hadir (WA)", subject: "❌ TIDAK HADIR", body: `{title} {name} - TIDAK HADIR ❤️
+Makasih doanya! 🙏` },
+  { name: "tidak hadir (simple)", subject: "Tidak Hadir", body: `Baik {title} {name}, terima kasih konfirmasinya. Doa Anda tetap berarti! 🙏` },
+  { name: "tidak hadir (doa)", subject: "Doa & Tidak Hadir", body: `{title} {name} - TIDAK HADIR ❤️
+
+"Barakallahulakuma wa baraka 'alaikuma wa jama'a bainakuma fi khair"
+
+Terima kasih doanya! 🙏🤲` },
+
   {
     name: "undangan (English)",
     subject: "Wedding Invitation — Tegar & Vebiza",

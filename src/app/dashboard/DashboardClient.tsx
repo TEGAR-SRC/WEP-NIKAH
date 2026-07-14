@@ -480,8 +480,41 @@ function TemplateTab() {
           Template ini dikirim otomatis ke WA tamu saat mereka mengirim konfirmasi/ucapan. Gunakan {`{title}`}, {`{name}`}, {`{confirm}`}.
         </div>
       </div>
+
+      {/* ===== FOLLOW-UP, HADIR, TIDAK HADIR ===== */}
+      <TmplSelector prefix="follow-up" label="Follow-up (WA)" desc="Dikirim jika tamu belum konfirmasi" />
+      <TmplSelector prefix="hadir" label="Hadir (WA)" desc="Dikirim jika tamu konfirmasi HADIR" />
+      <TmplSelector prefix="tidak hadir" label="Tidak Hadir (WA)" desc="Dikirim jika tamu konfirmasi TIDAK HADIR" />
     </div>
   );
+}
+
+function TmplSelector({ prefix, label, desc }: { prefix: string; label: string; desc: string }) {
+  const [list, setList] = useState<any[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const { show } = useContext(NotifCtx);
+  useEffect(() => {
+    fetch("/api/templates").then(r => r.json()).then((all: any[]) => {
+      const f = all.filter((t: any) => t.name.startsWith(prefix));
+      setList(f);
+      const a = f.find((t: any) => t.name === `${prefix} (active)`) || f[0];
+      if (a) setActiveId(a.id);
+    }).catch(() => {});
+  }, [prefix]);
+  return <div style={{ marginTop: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--inv-accent)" }}>{label}</div>
+    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      <select value={activeId || ""} onChange={(e) => setActiveId(e.target.value)} style={{ ...s.select, maxWidth: 300 }}>
+        {list.map((t: any) => (<option key={t.id} value={t.id}>{t.name}</option>))}
+      </select>
+      <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+        if (!activeId) return;
+        await fetch(`/api/templates/${activeId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${prefix} (active)` }) });
+        show(`Template ${label} ditetapkan`);
+      }}>Terapkan ✅</button>
+    </div>
+    <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>{desc}</div>
+  </div>;
 }
 
 type GuestStat = { id: string; name: string; title: string; slug: string; phone: string | null; opened: boolean; visitCount: number; lastVisit: string | null; waSent: boolean };
