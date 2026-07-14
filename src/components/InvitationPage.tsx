@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { GuestProvider, GuestInfo } from "@/lib/guest-context";
+import Preloader from "@/components/Preloader";
 import CoverSlide from "@/components/CoverSlide";
 import OpeningSlide from "@/components/OpeningSlide";
 import CoupleSlide from "@/components/CoupleSlide";
@@ -98,9 +99,9 @@ function Home() {
     setVideoTime(0);
     setActiveIndex(0);
     const audio = audioRef.current;
-    if (audio) {
-      audio.play().catch(() => {});
-    }
+    if (audio) audio.play().catch(() => {});
+    const video = videoRef.current;
+    if (video) video.play().catch(() => {});
   }, []);
 
   const handleEnterSlides = useCallback(() => {
@@ -203,7 +204,27 @@ function Home() {
         background: "var(--inv-bg)",
       }}
     >
+      <Preloader />
       <audio ref={audioRef} src="/api/r2/public/audio/song-of-sabdatama-wqaeg-2.mp3" loop />
+      <video
+        ref={videoRef}
+        src="/api/r2/public/VIDIO/The Wedding of Masrul & Maya.mp4"
+        preload="auto"
+        muted
+        playsInline
+        onTimeUpdate={handleTimeUpdate}
+        onClick={() => { if (canSkip) handleEnterSlides(); }}
+        style={{
+          position: "fixed",
+          zIndex: showVideo ? 10 : -1,
+          width: showVideo ? "100%" : 1,
+          height: showVideo ? "100vh" : 1,
+          objectFit: "cover",
+          opacity: showVideo ? 1 : 0,
+          pointerEvents: showVideo ? "auto" : "none",
+          transition: "opacity 0.3s",
+        }}
+      />
       <div
         style={{
           position: "fixed",
@@ -232,21 +253,7 @@ function Home() {
               }}
               onClick={() => { if (canSkip) handleEnterSlides(); }}
             >
-              <video
-                ref={videoRef}
-                src="/api/r2/public/VIDIO/The Wedding of Masrul & Maya.mp4"
-                autoPlay
-                playsInline
-                muted
-                preload="auto"
-                onTimeUpdate={handleTimeUpdate}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  filter: "brightness(1.1)",
-                }}
-              />
+
 
               {showNames && (
                 <div
