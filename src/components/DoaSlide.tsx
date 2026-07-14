@@ -1,6 +1,11 @@
 import SlideFrame from "./SlideFrame";
 
 export default function DoaSlide() {
+  const goGuestbook = () => {
+    // Custom event untuk navigasi ke GuestbookSlide
+    window.dispatchEvent(new CustomEvent("go-to-guestbook"));
+  };
+
   return (
     <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
       <SlideFrame />
@@ -24,6 +29,7 @@ export default function DoaSlide() {
             </div>
             <button
               type="button"
+              onClick={goGuestbook}
               style={{
                 padding: "12px 32px",
                 borderRadius: 50,
