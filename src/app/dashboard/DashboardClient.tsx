@@ -302,6 +302,7 @@ function TemplateTab() {
   const [konfirmName, setKonfirmName] = useState("");
   const [konfirmBody, setKonfirmBody] = useState("");
   const { show } = useContext(NotifCtx);
+  const { ask } = useContext(ConfirmCtx);
 
   const fetchTemplates = async () => {
     setLoading(true);
