@@ -5,12 +5,17 @@ const INSTANCE = "nikah";
 let qrCache: string | null = null;
 
 async function api(method: string, path: string, body?: any) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  // Try common auth header formats
+  if (KEY) {
+    headers["apikey"] = KEY;
+    headers["Authorization"] = `Bearer ${KEY}`;
+  }
   const res = await fetch(`${BASE}/${path}`, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": KEY,
-    },
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) {
@@ -23,9 +28,15 @@ async function api(method: string, path: string, body?: any) {
 export async function connectWA() {
   qrCache = null;
   try { await api("POST", `instance/create`, { instanceName: INSTANCE }); } catch {}
-  const data = await api("POST", `instance/connect`, { instanceName: INSTANCE });
-  qrCache = data?.base64 ?? data?.qrcode ?? data?.qr ?? null;
-  return data;
+  try {
+    const data = await api("POST", `instance/connect`, { instanceName: INSTANCE });
+    qrCache = data?.base64 ?? data?.qrcode ?? data?.qr ?? null;
+    return data;
+  } catch {
+    // If connect fails, try pair
+    const data = await api("POST", `instance/pair`, { instanceName: INSTANCE });
+    return data;
+  }
 }
 
 export function disconnectWA() {
@@ -34,7 +45,7 @@ export function disconnectWA() {
 
 export function deleteSession() {
   qrCache = null;
-  api("DELETE", `instance/delete/${INSTANCE}`).catch(() => {});
+  api("DELETE", `instance/delete/${INSTANCE}`, { instanceName: INSTANCE }).catch(() => {});
 }
 
 export async function getStatus() {
@@ -47,7 +58,7 @@ export async function getStatus() {
     return {
       connected,
       connecting,
-      qr: qrCache || data?.base64 || data?.qrcode || null,
+      qr: qrCache || null,
       qrExpired: false,
     };
   } catch {
