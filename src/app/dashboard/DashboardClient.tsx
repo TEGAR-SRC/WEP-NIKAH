@@ -273,6 +273,7 @@ function TemplateTab() {
   const [body, setBody] = useState("");
   const [thanksTemplates, setThanksTemplates] = useState<any[]>([]);
   const [thanksActiveId, setThanksActiveId] = useState<string | null>(null);
+  const [thanksPreview, setThanksPreview] = useState<any>(null);
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -318,7 +319,11 @@ function TemplateTab() {
       <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--inv-border)" }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "var(--inv-accent)" }}>Pesan Terima Kasih (WA)</h3>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <select value={thanksActiveId || ""} onChange={(e) => setThanksActiveId(e.target.value)} style={{ ...s.select, maxWidth: 300 }}>
+          <select value={thanksActiveId || ""} onChange={(e) => {
+            setThanksActiveId(e.target.value);
+            const t = thanksTemplates.find((x: any) => x.id === e.target.value);
+            setThanksPreview(t || null);
+          }} style={{ ...s.select, maxWidth: 300 }}>
             {thanksTemplates.map((t: any) => (
               <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
             ))}
@@ -329,6 +334,12 @@ function TemplateTab() {
             if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
           }}>Terapkan</button>
         </div>
+        {thanksPreview && (
+          <div style={s.previewBox}>
+            <strong>{thanksPreview.subject}</strong><br />
+            {thanksPreview.body.split("\n").map((l: string, i: number) => <span key={i}>{l}<br /></span>)}
+          </div>
+        )}
         <div style={{ fontSize: 11, marginTop: 6, opacity: 0.6 }}>
           Template ini akan dikirim otomatis ke WA tamu saat mereka membuka undangan.
         </div>
