@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, FormEvent, useCallback } from "react";
+import { useState, useEffect, FormEvent, useCallback, useRef } from "react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import SlideFrame from "./SlideFrame";
 import { useGuest } from "@/lib/guest-context";
 
@@ -51,10 +52,11 @@ export default function GuestbookSlide() {
   const guest = useGuest();
   const [message, setMessage] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [comments, setComments] = useState<CommentItem[]>([]);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [comments, setComments] = useState<{ id: string; message: string; confirm: string; createdAt: string; guest: { name: string; title: string } }[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -81,13 +83,14 @@ export default function GuestbookSlide() {
     e.preventDefault();
     if (!message.trim()) return;
     if (!guest.id) { setError("Silakan buka undangan via link pribadi Anda"); return; }
+    if (!turnstileToken) { setError("Verifikasi captcha dulu"); return; }
     setSending(true);
     setError("");
     try {
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestId: guest.id, message: message.trim(), confirm }),
+        body: JSON.stringify({ guestId: guest.id, message: message.trim(), confirm, turnstileToken }),
       });
       if (!res.ok) throw new Error("Gagal mengirim");
       setMessage("");
@@ -210,6 +213,10 @@ export default function GuestbookSlide() {
                     {label}
                   </label>
                 ))}
+              </div>
+
+              <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
+                <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setTurnstileToken} />
               </div>
 
               {error && (

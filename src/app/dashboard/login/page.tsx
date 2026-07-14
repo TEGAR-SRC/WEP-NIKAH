@@ -1,22 +1,25 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !password.trim()) { setError("Isi email dan password"); return; }
+    if (!token) { setError("Verifikasi captcha dulu"); return; }
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), password }),
+      body: JSON.stringify({ email: email.trim(), password, turnstileToken: token }),
     });
     if (res.ok) router.push("/dashboard");
     else setError("Email atau password salah");
@@ -51,6 +54,9 @@ export default function LoginPage() {
               width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--inv-border)",
               background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
             }} />
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setToken} />
         </div>
         {error && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{error}</div>}
         <button type="submit" style={{

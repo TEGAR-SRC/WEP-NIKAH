@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY ?? "";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const guestId = searchParams.get("guestId");
@@ -19,16 +21,24 @@ export async function GET(req: NextRequest) {
     prisma.comment.count({ where }),
   ]);
 
-  return NextResponse.json({
-    comments,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
-  });
+  return NextResponse.json({ comments, total, page, totalPages: Math.ceil(total / limit) });
 }
 
 export async function POST(req: NextRequest) {
-  const { guestId, message, confirm } = await req.json();
+  const { guestId, message, confirm, turnstileToken } = await req.json();
+
+  if (TURNSTILE_SECRET) {
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret: TURNSTILE_SECRET, response: turnstileToken ?? "" }),
+    });
+    const data = await r.json();
+    if (!data.success) {
+      return NextResponse.json({ error: "Verifikasi captcha gagal" }, { status: 400 });
+    }
+  }
+
   const comment = await prisma.comment.create({
     data: { guestId, message, confirm: confirm ?? "" },
     include: { guest: { select: { name: true, title: true } } },

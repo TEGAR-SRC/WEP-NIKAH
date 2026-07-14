@@ -27,14 +27,14 @@ function Pagination({ page, totalPages, rows, onPage, onRows }: { page: number; 
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
         <button disabled={page === 0} onClick={() => onPage(page - 1)}
-          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13, opacity: page === 0 ? 0.4 : 1 }}>‹</button>
+          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page === 0 ? "var(--inv-border)" : "#000", cursor: page === 0 ? "default" : "pointer", fontSize: 16, fontWeight: 700, opacity: page === 0 ? 0.3 : 1, lineHeight: 1 }}>‹</button>
         {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => (
           <button key={i} onClick={() => onPage(i)}
             style={{ minWidth: 32, padding: "4px 0", border: i === page ? "none" : "1px solid var(--inv-border)", borderRadius: 6, background: i === page ? "var(--inv-accent)" : "transparent", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400 }}>{i + 1}</button>
         ))}
         {totalPages > 8 && <span style={{ fontSize: 13, opacity: 0.4 }}>...</span>}
         <button disabled={page >= totalPages - 1} onClick={() => onPage(page + 1)}
-          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13, opacity: page >= totalPages - 1 ? 0.4 : 1 }}>›</button>
+          style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 6, background: "transparent", color: page >= totalPages - 1 ? "var(--inv-border)" : "#000", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 16, fontWeight: 700, opacity: page >= totalPages - 1 ? 0.3 : 1, lineHeight: 1 }}>›</button>
       </div>
     </div>
   );
@@ -126,6 +126,12 @@ export default function DashboardClient() {
           {tab === "Statistik" && <StatsTab />}
         </ConfirmProvider>
       </NotifProvider>
+      <footer style={{ marginTop: 40, padding: "20px 0", borderTop: "1px solid var(--inv-border)", textAlign: "center", fontSize: 12, opacity: 0.6, lineHeight: 1.8 }}>
+        <div>Dibuat oleh <a href="https://github.com/TEGAR-SRC" target="_blank" rel="noopener noreferrer" style={{ color: "var(--inv-accent)", textDecoration: "none", fontWeight: 600 }}>tegararrahman</a></div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 4 }}>
+          <span>Next.js</span><span>Go</span><span>PostgreSQL</span><span>Redis</span>
+        </div>
+      </footer>
     </div>
   );
 }
