@@ -376,6 +376,7 @@ export default function InvitationPage({ guest }: { guest: GuestInfo }) {
       }
     }
   }, [guest.id]);
+  return (
     <GuestProvider guest={guest}>
       <Home />
     </GuestProvider>
