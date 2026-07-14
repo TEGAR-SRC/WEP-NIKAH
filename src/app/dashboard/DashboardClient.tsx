@@ -185,7 +185,7 @@ function CommentsTab() {
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
-  const fetchComments = async () => { const r = await fetch("/api/comments"); if (r.ok) setComments(await r.json()); };
+  const fetchComments = async () => { const r = await fetch("/api/comments?limit=100"); if (r.ok) { const d = await r.json(); setComments(d.comments ?? d); } };
   useEffect(() => { fetchComments(); }, []);
 
   const deleteComment = async (id: string) => {
