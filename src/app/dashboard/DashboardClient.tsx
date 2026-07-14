@@ -6,9 +6,9 @@ import { TableSkeleton, CardSkeleton } from "@/components/Skeleton";
 type Guest = { id: string; name: string; slug: string; phone: string | null; status: string; title: string };
 type Comment = { id: string; guestId: string; message: string; confirm: string; createdAt: string; guest: { name: string } };
 type Template = { id: string; name: string; subject: string; body: string };
-type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA" | "Statistik" | "Admin";
+type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA" | "Statistik" | "Reminder" | "Admin";
 
-const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA", "Statistik", "Admin"];
+const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA", "Statistik", "Reminder", "Admin"];
 const TITLES = ["Bapak", "Ibu", "Bapak/Ibu"];
 
 function slugify(name: string) {
@@ -124,6 +124,7 @@ export default function DashboardClient() {
           {tab === "Template" && <TemplateTab />}
           {tab === "Kirim WA" && <KirimWATab />}
           {tab === "Statistik" && <StatsTab />}
+          {tab === "Reminder" && <ReminderTab />}
           {tab === "Admin" && <AdminTab />}
         </ConfirmProvider>
       </NotifProvider>
@@ -755,6 +756,55 @@ function StatsTab() {
 type AdminUser = { id: string; email: string; createdAt: string };
 
 const EVO_BASE = process.env.NEXT_PUBLIC_EVOLUTION_API_URL || "/api/wa";
+
+type RemindGuest = { id: string; name: string; title: string; slug: string; phone: string | null; opened: boolean; openTime: string | null; minsSinceOpen: number | null; confirmed: boolean; reminderSent: boolean; pendingReminder: boolean; followupCount: number; giftCount: number };
+
+function ReminderTab() {
+  const [data, setData] = useState<{ total: number; opened: number; confirmed: number; pendingReminder: number; reminderSent: number; guestStats: RemindGuest[] } | null>(null);
+  useEffect(() => { fetch("/api/wa/reminder-stats").then(r => r.json()).then(setData).catch(() => {}); }, []);
+
+  if (!data) return <div style={{ fontSize: 13 }}>Memuat...</div>;
+
+  return (
+    <div>
+      {/* Kartu ringkasan */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+        {[
+          { label: "Total Tamu", value: data.total },
+          { label: "Sudah Buka", value: data.opened },
+          { label: "Sudah Konfirmasi", value: data.confirmed },
+          { label: "Pending Reminder", value: data.pendingReminder },
+          { label: "Reminder Terkirim", value: data.reminderSent },
+        ].map(({ label, value }) => (
+          <div key={label} style={{ flex: "1 0 100px", padding: 10, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
+            <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ overflowX: "auto" }}><table style={s.table}>
+        <thead><tr>
+          <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>Buka</th><th style={s.th}>Sejak</th><th style={s.th}>Konfirmasi</th><th style={s.th}>Reminder</th><th style={s.th}>Hadiah</th>
+        </tr></thead>
+        <tbody>
+          {data.guestStats.map((g) => (
+            <tr key={g.id}>
+              <td style={s.td}>{g.title} {g.name}</td>
+              <td style={s.td}>{g.phone ?? "—"}</td>
+              <td style={s.td}>{g.opened ? "✅" : "❌"}</td>
+              <td style={s.td}>{g.minsSinceOpen !== null ? `${g.minsSinceOpen}m` : "—"}</td>
+              <td style={s.td}>{g.confirmed ? "✅" : g.pendingReminder ? "⚠️" : "—"}</td>
+              <td style={s.td}>{g.reminderSent ? "✅" : g.pendingReminder ? "⏳" : "—"}</td>
+              <td style={s.td}>{g.giftCount > 0 ? `🎁${g.giftCount}` : "—"}</td>
+            </tr>
+          ))}
+          {data.guestStats.length === 0 && <tr><td style={s.td} colSpan={7}>Belum ada data.</td></tr>}
+        </tbody>
+      </table></div>
+    </div>
+  );
+}
 
 function AdminTab() {
   const [admins, setAdmins] = useState<AdminUser[]>([]);

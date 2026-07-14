@@ -359,15 +359,21 @@ export default function InvitationPage({ guest }: { guest: GuestInfo }) {
   }, [guest.id]);
 
   useEffect(() => {
-    if (guest.id && typeof window !== "undefined" && !localStorage.getItem(`wa_thanks_${guest.id}`)) {
-      localStorage.setItem(`wa_thanks_${guest.id}`, "1");
-      fetch("/api/wa/thank-you", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id }) }).catch(() => {});
+    if (guest.id && typeof window !== "undefined") {
+      const key = `wa_${guest.id}`;
+      const openTime = localStorage.getItem(`open_${guest.id}`);
+      if (!openTime) localStorage.setItem(`open_${guest.id}`, String(Date.now()));
 
-      // 30-menit reminder WA kalo belum konfirmasi
-      const timer = setTimeout(() => {
-        fetch("/api/wa/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, confirm: "" }) }).catch(() => {});
-      }, 1800000); // 30 menit
-      return () => clearTimeout(timer);
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, "1");
+        fetch("/api/wa/thank-you", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id }) }).catch(() => {});
+
+        // 30-menit reminder WA kalo belum konfirmasi
+        const timer = setTimeout(() => {
+          fetch("/api/wa/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, confirm: "" }) }).catch(() => {});
+        }, 1800000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [guest.id]);
     <GuestProvider guest={guest}>

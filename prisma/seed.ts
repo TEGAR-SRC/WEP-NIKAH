@@ -658,6 +658,28 @@ Makasih banget atas hadiahnya! Kami sangat berterima kasih ❤️🎉
 
 Semoga berkah selalu!
 Tegar & Vebiza` },
+  { name: "gift (lengkap)", subject: "Terima Kasih - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+
+Kami sekeluarga mengucapkan terima kasih yang tulus atas hadiah yang telah diberikan.
+
+Semoga Allah SWT membalas kebaikan {title} {name} dengan pahala yang berlipat ganda.
+
+Wassalamualaikum Wr. Wb.
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "gift (WA)", subject: "Makasih 🙏", body: `{title} {name} - Makasih hadiahnya! 🙏❤️` },
+  { name: "gift (English)", subject: "Thank You!", body: `Dear {title} {name}
+
+Thank you so much for your generous gift! We truly appreciate your kindness and blessings. 🙏❤️
+
+Best regards,
+Tegar & Vebiza` },
+  { name: "gift (simple)", subject: "🙏", body: `Terima kasih {title} {name} atas hadiahnya. Doa terbaik untuk Anda! 🙏` },
+  { name: "gift (doa)", subject: "Hadiah + Doa", body: `{title} {name}
+
+"Jazakumullahu khairan katsiran"
+
+Semoga Allah membalas kebaikan {title} {name}. Terima kasih atas hadiah dan doanya! 🤲🙏` },
   { name: "kado (default)", subject: "Terima Kasih Kado", body: `{title} {name}
 
 Terima kasih banyak atas kado yang telah dikirimkan 🙏
@@ -679,6 +701,26 @@ Kado nya udah sampe! Makasih banyak ya 😍🎉
 
 Kami tunggu kehadirannya!
 Tegar & Vebiza 💕` },
+  { name: "kado (lengkap)", subject: "Terima Kasih - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+
+Kado yang {title} {name} kirimkan sudah kami terima. Terima kasih banyak atas perhatian dan kasih sayangnya.
+
+Semoga Allah SWT membalas kebaikan {title} {name}.
+
+Wassalamualaikum Wr. Wb.
+
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "kado (WA)", subject: "🎁🙏", body: `{title} {name} - Makasih kado nya! 🎁🙏❤️` },
+  { name: "kado (English)", subject: "Gift Received! 🎁", body: `Dear {title} {name}
+
+We received your gift! Thank you so much for your kindness and love! ❤️🎁
+
+Best regards,
+Tegar & Vebiza` },
+  { name: "kado (simple)", subject: "🙏🎁", body: `Terima kasih {title} {name} atas kado yang dikirim. Kami sangat berterima kasih! 🙏🎁` },
+  { name: "kado (doa)", subject: "Kado + Doa", body: `{title} {name}
+
+Terima kasih atas kado & doa restunya. Semoga Allah membalas kebaikan {title} {name} 🤲🙏` },
 
   {
     name: "undangan (English)",
