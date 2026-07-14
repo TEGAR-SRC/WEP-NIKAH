@@ -16,6 +16,15 @@ export async function connectWA() {
   connecting = true;
   qrBuffer = null;
 
+  // If session dir has no files, delete stale creds
+  try {
+    const files = await fsReadDir(SESSION_DIR);
+    if (files.length === 0) {
+      rmSync(SESSION_DIR, { recursive: true, force: true });
+      mkdirSync(SESSION_DIR, { recursive: true });
+    }
+  } catch {}
+
   const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
 
   sock = makeWASocket({
@@ -26,21 +35,28 @@ export async function connectWA() {
   });
 
   sock.ev.on("connection.update", ({ connection, qr, lastDisconnect }) => {
-    if (qr) qrBuffer = qr;
+    if (qr && !connected) qrBuffer = qr;
+
     if (connection === "close") {
+      const reason = new Boom(lastDisconnect?.error).output.statusCode;
       connected = false;
       connecting = false;
       sock = null;
-      const reason = new Boom(lastDisconnect?.error).output.statusCode;
-      if (reason !== DisconnectReason.loggedOut) {
-        qrBuffer = null;
+      qrBuffer = null;
+
+      // Device removed/replaced → wipe session so next connect gets fresh QR
+      if (reason === DisconnectReason.loggedOut) {
+        try { rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
+        mkdirSync(SESSION_DIR, { recursive: true });
       }
     }
+
     if (connection === "open") {
       connected = true;
       connecting = false;
       qrBuffer = null;
     }
+
     if (connection === "connecting") {
       connecting = true;
     }
@@ -51,7 +67,7 @@ export async function connectWA() {
 
 export function disconnectWA() {
   if (sock) {
-    sock.end(undefined);
+    sock.end(new Error("manual disconnect"));
     sock = null;
   }
   connected = false;
@@ -71,4 +87,12 @@ export function getStatus() {
 
 export async function getSock() {
   return sock;
+}
+
+// Promisify fs.readdir
+import { readdir } from "fs";
+function fsReadDir(dir: string): Promise<string[]> {
+  return new Promise((resolve) => {
+    readdir(dir, (err, files) => resolve(err ? [] : files));
+  });
 }

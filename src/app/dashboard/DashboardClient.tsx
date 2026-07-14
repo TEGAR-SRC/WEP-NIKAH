@@ -253,7 +253,7 @@ function KirimWATab() {
 
   useEffect(() => {
     checkWA();
-    const id = setInterval(checkWA, 3000);
+    const id = setInterval(checkWA, 5000);
     return () => clearInterval(id);
   }, [checkWA]);
 
