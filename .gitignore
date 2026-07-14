@@ -40,6 +40,10 @@ yarn-error.log*
 # database
 prisma/dev.db
 
+# wa session
+wa_session/
+
+
 # vercel
 .vercel
 
