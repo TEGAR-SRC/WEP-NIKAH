@@ -35,8 +35,10 @@ export function deleteSession() {
 
 export async function getStatus() {
   try {
-    const data = await api("GET", `instance/info/${INSTANCE}`);
-    const connected = data?.connected === true;
+    const data = await api("GET", `instance/all`);
+    const list = data?.data ?? data?.instances ?? [];
+    const inst = list.find((i: any) => i.name === INSTANCE);
+    const connected = inst?.connected === true;
     return { connected, connecting: false, qr: null, qrExpired: false };
   } catch {
     return { connected: false, connecting: false, qr: null, qrExpired: false };
