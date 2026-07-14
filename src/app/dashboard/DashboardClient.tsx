@@ -498,6 +498,8 @@ function TemplateTab() {
       <TmplSelector prefix="follow-up" label="Follow-up (WA)" desc="Dikirim jika tamu belum konfirmasi" />
       <TmplSelector prefix="hadir" label="Hadir (WA)" desc="Dikirim jika tamu konfirmasi HADIR" />
       <TmplSelector prefix="tidak hadir" label="Tidak Hadir (WA)" desc="Dikirim jika tamu konfirmasi TIDAK HADIR" />
+      <TmplSelector prefix="gift" label="Hadiah (WA)" desc="Dikirim jika tamu klik tombol Hadiah" />
+      <TmplSelector prefix="kado" label="Kirim Kado (WA)" desc="Dikirim jika tamu klik tombol Kirim Kado" />
     </div>
   );
 }
