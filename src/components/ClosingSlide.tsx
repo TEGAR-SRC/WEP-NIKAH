@@ -22,8 +22,17 @@ export default function ClosingSlide() {
           </div>
           <div className="font-latin color-accent text-center" style={{ fontSize: 32, marginTop: 8 }}>Tegar &amp; Vebiza</div>
           <div style={{ textAlign: "center", fontSize: 10, marginTop: 20, color: "#000", fontWeight: 700 }}>
-            Dibuat oleh tegararrahman
-            <div style={{ fontWeight: 600, marginTop: 2 }}>Next.js · Go · PostgreSQL · Redis</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+              <span>Dibuat oleh</span>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/github/dark.svg" alt="GitHub" style={{ height: 12, margin: "0 2px" }} />
+              <span>tegararrahman</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 3, alignItems: "center" }}>
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/nextdotjs/wordmark.svg" alt="Next.js" style={{ height: 10, opacity: 0.6 }} />
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/go/default.svg" alt="Go" style={{ height: 12, opacity: 0.6 }} />
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/postgresql/default.svg" alt="PostgreSQL" style={{ height: 12, opacity: 0.6 }} />
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/redis/default.svg" alt="Redis" style={{ height: 12, opacity: 0.6 }} />
+            </div>
           </div>
         </div>
       </div>
