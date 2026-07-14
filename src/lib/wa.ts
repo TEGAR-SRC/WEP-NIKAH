@@ -14,12 +14,27 @@ export async function getInstances() {
   return data?.data ?? data?.instances ?? [];
 }
 
-export async function sendMessage(phone: string, text: string) {
-  const number = phone.replace(/[^0-9]/g, "");
-  // Get active instance token first
+async function getKey() {
   const data = await api("GET", "instance/all");
   const list = data?.data ?? data?.instances ?? [];
   const active = list.find((i: any) => i.connected);
-  const key = active?.token || GLOBAL_KEY;
+  return active?.token || GLOBAL_KEY;
+}
+
+export async function sendMessage(phone: string, text: string) {
+  const number = phone.replace(/[^0-9]/g, "");
+  const key = await getKey();
   return api("POST", "send/text", { number, text, delay: 1200 }, key);
+}
+
+export async function sendButtonMessage(phone: string, description: string, footer: string, buttons: { label: string; id: string }[]) {
+  const number = phone.replace(/[^0-9]/g, "");
+  const key = await getKey();
+  return api("POST", "send/button", {
+    number,
+    description,
+    footer,
+    buttons: buttons.map((b) => ({ type: "reply", displayText: b.label, id: b.id })),
+    delay: 1200,
+  }, key);
 }

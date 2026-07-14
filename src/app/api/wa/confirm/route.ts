@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { sendMessage } from "@/lib/wa";
+import { sendMessage, sendButtonMessage } from "@/lib/wa";
 import { prisma } from "@/lib/prisma";
 
 async function getTmpl(nameLike: string, fallback: string): Promise<string> {
@@ -18,11 +18,16 @@ export async function POST(req: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://nikah.tegar-src.xyz";
 
   if (!confirm) {
-    // Follow-up — guest didn't select confirm
-    const body = await getTmpl("follow-up", "Yth. {title} {name}, mohon konfirmasi kehadiran: {BASE_URL}/undangan/{slug}");
-    const msg = body.replace(/\{title\}/g, guest.title).replace(/\{name\}/g, guest.name).replace(/\{slug\}/g, guest.slug).replace(/\{BASE_URL\}/g, baseUrl);
-    try { await sendMessage(guest.phone, msg); } catch {}
-    await prisma.log.create({ data: { type: "sent_wa_followup", guestId, detail: `Follow-up ke ${guest.phone}` } });
+    // Follow-up with interactive buttons
+    const desc = `Halo ${guest.title} ${guest.name} 👋\n\nTerima kasih sudah mengirimkan ucapan untuk pernikahan kami 🙏\n\nMohon konfirmasi kehadiran Anda:`;
+    try {
+      await sendButtonMessage(guest.phone, desc, "Tegar & Vebiza 💕", [
+        { label: "✅ Hadir", id: "hadir" },
+        { label: "❌ Tidak Hadir", id: "tidak_hadir" },
+        { label: "🤔 Ragu", id: "ragu" },
+      ]);
+    } catch { /* fallback to text */ }
+    await prisma.log.create({ data: { type: "sent_wa_followup", guestId, detail: `Follow-up button ke ${guest.phone}` } });
     return NextResponse.json({ ok: true });
   }
 

@@ -178,6 +178,14 @@ function GuestsTab() {
     fetchGuests(); show("Tamu dihapus");
   };
 
+  const importExcel = async (file: File) => {
+    const data = new FormData();
+    data.append("file", file);
+    const r = await fetch("/api/guests/import", { method: "POST", body: data });
+    if (r.ok) { show("Tamu berhasil diimport"); fetchGuests(); }
+    else { const e = await r.json(); show(e.error || "Gagal import", "err"); }
+  };
+
   const totalPages = Math.max(1, Math.ceil(guests.length / rowsPerPage));
   const paged = guests.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
@@ -185,6 +193,11 @@ function GuestsTab() {
   return (
     <div>
       <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 600 }}>Import Excel:</span>
+          <input type="file" accept=".xlsx,.xls,.csv" style={{ fontSize: 12 }} onChange={(e) => { const f = e.target.files?.[0]; if (f) importExcel(f); }} />
+          <a href="/template-tamu.xlsx" download style={{ fontSize: 12, color: "var(--inv-accent)", cursor: "pointer" }}>📥 Download Template</a>
+        </div>
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ flex: "1 0 140px" }}><label style={s.label}>Nama</label><input style={s.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama tamu" /></div>
           <div style={{ flex: "0 0 110px" }}><label style={s.label}>Title</label><select style={s.select} value={title} onChange={(e) => setTitle(e.target.value)}>{TITLES.map((t) => <option key={t} value={t}>{t}</option>)}</select></div>
