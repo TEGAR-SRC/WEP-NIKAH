@@ -221,13 +221,15 @@ function Home() {
         preload="auto"
         muted
         playsInline
+        autoPlay
         onTimeUpdate={handleTimeUpdate}
         onClick={() => { if (canSkip) handleEnterSlides(); }}
         style={{
           position: "fixed",
+          top: 0, left: 0,
           zIndex: showVideo ? 10 : -1,
-          width: showVideo ? "100%" : 1,
-          height: showVideo ? "100vh" : 1,
+          width: "100%",
+          height: "100dvh",
           objectFit: "cover",
           opacity: showVideo ? 1 : 0,
           pointerEvents: showVideo ? "auto" : "none",
