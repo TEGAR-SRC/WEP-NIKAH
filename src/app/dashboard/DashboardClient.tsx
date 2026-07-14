@@ -5,9 +5,9 @@ import { useEffect, useState, createContext, useContext, ReactNode, useCallback,
 type Guest = { id: string; name: string; slug: string; phone: string | null; status: string; title: string };
 type Comment = { id: string; guestId: string; message: string; confirm: string; createdAt: string; guest: { name: string } };
 type Template = { id: string; name: string; subject: string; body: string };
-type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA";
+type Tab = "Tamu" | "Ucapan" | "Template" | "Kirim WA" | "Statistik";
 
-const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA"];
+const TABS: Tab[] = ["Tamu", "Ucapan", "Template", "Kirim WA", "Statistik"];
 const TITLES = ["Bapak", "Ibu", "Bapak/Ibu"];
 
 function slugify(name: string) {
@@ -92,6 +92,7 @@ export default function DashboardClient() {
           {tab === "Ucapan" && <CommentsTab />}
           {tab === "Template" && <TemplateTab />}
           {tab === "Kirim WA" && <KirimWATab />}
+          {tab === "Statistik" && <StatsTab />}
         </ConfirmProvider>
       </NotifProvider>
     </div>
@@ -221,6 +222,60 @@ function TemplateTab() {
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
       <button style={s.btn()} onClick={save}>Simpan</button>
+    </div>
+  );
+}
+
+type GuestStat = { id: string; name: string; title: string; slug: string; phone: string | null; opened: boolean; visitCount: number; lastVisit: string | null; waSent: boolean };
+type StatsData = { totalGuests: number; totalVisits: number; uniqueVisitors: number; openedCount: number; notOpenedCount: number; guestStats: GuestStat[] };
+
+function StatsTab() {
+  const [stats, setStats] = useState<StatsData | null>(null);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => { fetch("/api/stats").then((r) => r.json()).then(setStats).catch(() => {}); }, []);
+
+  if (!stats) return <div style={{ fontSize: 13 }}>Memuat...</div>;
+
+  const filtered = stats.guestStats.filter((g) => g.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+        {[
+          { label: "Total Tamu", value: stats.totalGuests },
+          { label: "Total Kunjungan", value: stats.totalVisits },
+          { label: "Pengunjung Unik", value: stats.uniqueVisitors },
+          { label: "Sudah Buka", value: stats.openedCount },
+          { label: "Belum Buka", value: stats.notOpenedCount },
+        ].map(({ label, value }) => (
+          <div key={label} style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
+            <div style={{ fontSize: 11, marginTop: 4, opacity: 0.7 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <input style={s.input} placeholder="Cari tamu..." value={search} onChange={(e) => setSearch(e.target.value)} />
+      </div>
+      <table style={s.table}>
+        <thead><tr>
+          <th style={s.th}>Nama</th><th style={s.th}>Link</th><th style={s.th}>Dibuka</th><th style={s.th}>Kunjungan</th><th style={s.th}>Terakhir</th><th style={s.th}>WA</th>
+        </tr></thead>
+        <tbody>
+          {filtered.map((g) => (
+            <tr key={g.id}>
+              <td style={s.td}>{g.title} {g.name}</td>
+              <td style={s.td}><code style={{ fontSize: 11 }}>{g.slug}</code></td>
+              <td style={s.td}><span style={{ fontSize: 13 }}>{g.opened ? "✅" : "❌"}</span></td>
+              <td style={s.td}>{g.visitCount}x</td>
+              <td style={s.td}>{g.lastVisit ? new Date(g.lastVisit).toLocaleDateString("id-ID") : "—"}</td>
+              <td style={s.td}>{g.waSent ? "✅" : "—"}</td>
+            </tr>
+          ))}
+          {filtered.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
+        </tbody>
+      </table>
     </div>
   );
 }

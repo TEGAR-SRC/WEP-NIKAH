@@ -319,6 +319,9 @@ function Home() {
 }
 
 export default function InvitationPage({ guest }: { guest: GuestInfo }) {
+  useEffect(() => {
+    if (guest.id) fetch("/api/log-visit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id }) }).catch(() => {});
+  }, [guest.id]);
   return (
     <GuestProvider guest={guest}>
       <Home />
