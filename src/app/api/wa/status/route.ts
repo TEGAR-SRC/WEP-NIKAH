@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { getStatus } from "@/lib/wa";
+import { getInstances } from "@/lib/wa";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(getStatus());
+  try {
+    const instances = await getInstances();
+    return NextResponse.json({ instances });
+  } catch (e: any) {
+    return NextResponse.json({ instances: [], error: e?.message });
+  }
 }

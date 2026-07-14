@@ -621,16 +621,23 @@ function KirimWATab() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [previewGuest, setPreviewGuest] = useState<Guest | null>(null);
-  const [waConnected, setWaConnected] = useState(false);
+  const [instances, setInstances] = useState<any[]>([]);
   const [sending, setSending] = useState(false);
   const [logs, setLogs] = useState<WALog[]>([]);
   const [showLogs, setShowLogs] = useState(false);
   const [waPage, setWaPage] = useState(0);
   const [waRows, setWaRows] = useState(10);
+  const [manualPhone, setManualPhone] = useState("");
+  const [manualMsg, setManualMsg] = useState("");
+  const [showManual, setShowManual] = useState(false);
+  const [manualErr, setManualErr] = useState("");
   const { show } = useContext(NotifCtx);
 
+  const connectedInst = instances.find((i: any) => i.connected);
+  const waConnected = !!connectedInst;
+
   const checkWA = useCallback(async () => {
-    try { const r = await fetch("/api/wa/status"); const d = await r.json(); setWaConnected(d.connected); } catch {}
+    try { const r = await fetch("/api/wa/status"); const d = await r.json(); setInstances(d.instances || []); } catch {}
   }, []);
 
   useEffect(() => {
@@ -671,9 +678,6 @@ function KirimWATab() {
   const waPaged = guests.filter((g) => g.phone).slice(waPage * waRows, (waPage + 1) * waRows);
   const waNoPhone = guests.filter((g) => !g.phone);
 
-  const statusColor = waConnected ? "#28a745" : "#dc3545";
-  const statusText = waConnected ? "Terhubung" : "Terputus";
-
   const pagBtn = (disabled: boolean, onClick: () => void, label: string, active?: boolean) => (
     <button disabled={disabled} onClick={onClick}
       style={{ padding: "3px 8px", border: "1px solid var(--inv-border)", borderRadius: 4, background: active ? "var(--inv-accent)" : "var(--inv-bg)", color: disabled ? "var(--inv-border)" : active ? "var(--btn-color)" : "var(--inv-base)", cursor: disabled ? "default" : "pointer", fontSize: 12, fontWeight: active ? 700 : 400 }}>{label}</button>
@@ -685,16 +689,50 @@ function KirimWATab() {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ width: 10, height: 10, borderRadius: "50%", background: statusColor, display: "inline-block" }} />
-          <span style={{ fontSize: 13 }}>WhatsApp: <strong>{statusText}</strong></span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          {instances.map((inst: any) => (
+            <div key={inst.name} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, padding: "2px 8px", borderRadius: 4, background: inst.connected ? "rgba(40,167,69,0.1)" : "rgba(220,53,69,0.06)" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: inst.connected ? "#28a745" : "#dc3545", display: "inline-block" }} />
+              <strong>{inst.name}</strong>
+              {inst.connected ? "✅" : "❌"}
+            </div>
+          ))}
+          {instances.length === 0 && <span style={{ fontSize: 12, opacity: 0.5 }}>Tidak ada instance</span>}
         </div>
         <div style={{ display: "flex", gap: 6 }}>
+          {waConnected && <button style={s.btn("var(--inv-accent)")} onClick={() => setShowManual(true)}>Kirim Manual</button>}
           {waConnected && <button style={s.btn("#dc3545")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } }); show("Terputus"); }}>Putuskan</button>}
-          <button style={s.btn("#b33")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: true }), headers: { "Content-Type": "application/json" } }); show("Sesi dihapus"); }}>Hapus Sesi</button>
           <button style={s.btn("var(--inv-base)")} onClick={() => { setShowLogs(!showLogs); if (!showLogs) fetchLogs(); }}>{showLogs ? "Tutup Log" : "Log"}</button>
         </div>
       </div>
+
+      {/* Manual send popup */}
+      {showManual && (
+        <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.3)", zIndex: 999 }}>
+          <div style={{ background: "var(--inv-bg)", borderRadius: 12, padding: 24, maxWidth: 400, width: "90%" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Kirim Pesan Manual</div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={s.label}>Nomor WA</label>
+              <input style={s.input} value={manualPhone} onChange={(e) => setManualPhone(e.target.value)} placeholder="628xxx" />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={s.label}>Pesan</label>
+              <textarea style={s.textarea} value={manualMsg} onChange={(e) => setManualMsg(e.target.value)} placeholder="Tulis pesan..." rows={4} />
+            </div>
+            {manualErr && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{manualErr}</div>}
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button style={s.btn("var(--inv-base)")} onClick={() => { setShowManual(false); setManualPhone(""); setManualMsg(""); setManualErr(""); }}>Batal</button>
+              <button style={s.btn()} onClick={async () => {
+                if (!manualPhone.trim() || !manualMsg.trim()) { setManualErr("Isi nomor dan pesan"); return; }
+                setManualErr("");
+                const r = await fetch("/api/wa/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: manualPhone.trim(), message: manualMsg.trim() }) });
+                if (r.ok) { show("Pesan terkirim"); setShowManual(false); setManualPhone(""); setManualMsg(""); fetchLogs(); }
+                else { const e = await r.json(); setManualErr(e.error || "Gagal"); }
+              }}>Kirim</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showLogs && (
         <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", maxHeight: 200, overflowY: "auto" }}>
