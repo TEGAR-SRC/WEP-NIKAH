@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, createContext, useContext, ReactNode, useCallback } from "react";
+import { useEffect, useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
 
 type Guest = { id: string; name: string; slug: string; phone: string | null; status: string; title: string };
 type Comment = { id: string; guestId: string; message: string; confirm: string; createdAt: string; guest: { name: string } };
@@ -230,47 +230,96 @@ function KirimWATab() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [previewGuest, setPreviewGuest] = useState<Guest | null>(null);
+  const [waConnected, setWaConnected] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
   const { show } = useContext(NotifCtx);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchData = async () => {
-    const [gR, tR] = await Promise.all([fetch("/api/guests"), fetch("/api/templates")]);
-    if (gR.ok) setGuests(await gR.json());
-    if (tR.ok) { const list: Template[] = await tR.json(); const d = list.find((t) => t.name === "undangan") || list[0]; if (d) setTemplate(d); }
-  };
-  useEffect(() => { fetchData(); }, []);
+  const checkWA = useCallback(async () => {
+    try {
+      const r = await fetch("/api/wa/status");
+      const d = await r.json();
+      setWaConnected(d.connected);
+      if (d.qrCode) setQrCode(d.qrCode);
+      if (d.connected) setQrCode(null);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    checkWA();
+    intervalRef.current = setInterval(checkWA, 3000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [checkWA]);
+
+  useEffect(() => { (async () => { const [gR, tR] = await Promise.all([fetch("/api/guests"), fetch("/api/templates")]); if (gR.ok) setGuests(await gR.json()); if (tR.ok) { const list: Template[] = await tR.json(); const d = list.find((t) => t.name === "undangan") || list[0]; if (d) setTemplate(d); } })(); }, []);
 
   const toggle = (id: string) => { const n = new Set(selectedIds); if (n.has(id)) n.delete(id); else n.add(id); setSelectedIds(n); };
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
   const fillMessage = (g: Guest) => template ? template.body.replace(/\{title\}/g, g.title).replace(/\{name\}/g, g.name).replace(/\{slug\}/g, g.slug).replace(/\{BASE_URL\}/g, baseUrl) : "";
-  const waUrl = (g: Guest) => `https://wa.me/${g.phone}?text=${encodeURIComponent(fillMessage(g))}`;
-  const bulkWaUrls = () => guests.filter((g) => selectedIds.has(g.id) && g.phone).map((g) => waUrl(g));
+
+  const sendToGuest = async (g: Guest) => {
+    const msg = fillMessage(g);
+    if (!msg) return;
+    const r = await fetch("/api/wa/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: g.id, message: msg }) });
+    return r.ok;
+  };
+
+  const sendSelected = async () => {
+    const selected = guests.filter((g) => selectedIds.has(g.id) && g.phone);
+    if (!selected.length) { show("Pilih tamu dengan nomor WA", "err"); return; }
+    setSending(true);
+    let ok = 0, fail = 0;
+    for (const g of selected) {
+      if (await sendToGuest(g)) ok++; else fail++;
+    }
+    setSending(false);
+    show(`${ok} terkirim, ${fail} gagal`);
+  };
+
+  if (!waConnected) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px 0" }}>
+        <div style={{ fontSize: 14, marginBottom: 16 }}>Scan QR code ini dengan WhatsApp untuk menghubungkan:</div>
+        {qrCode ? (
+          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`} alt="QR Code" style={{ width: 250, height: 250, borderRadius: 8 }} />
+        ) : (
+          <div style={{ fontSize: 13, color: "var(--inv-accent)" }}>Memuat QR code...</div>
+        )}
+        <div style={{ fontSize: 12, marginTop: 16, color: "var(--inv-base)", opacity: 0.7 }}>
+          Buka WhatsApp {">"} Titik Tiga {">"} Perangkat Tertaut {">"} Scan
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 13, color: "var(--inv-accent)" }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#28a745", display: "inline-block" }} />
+        WhatsApp terhubung
+      </div>
       <table style={s.table}>
         <thead><tr>
           <th style={{ ...s.th, width: 32 }}><input type="checkbox" style={s.checkbox} onChange={(e) => { if (e.target.checked) setSelectedIds(new Set(guests.map((g) => g.id))); else setSelectedIds(new Set()); }} checked={selectedIds.size === guests.length && guests.length > 0} /></th>
-          <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>WA</th><th style={s.th}>Preview</th>
+          <th style={s.th}>Nama</th><th style={s.th}>Phone</th><th style={s.th}>Preview</th><th style={s.th}>Kirim</th>
         </tr></thead>
         <tbody>
           {guests.map((g) => (
             <tr key={g.id}>
               <td style={s.td}><input type="checkbox" style={s.checkbox} checked={selectedIds.has(g.id)} onChange={() => toggle(g.id)} /></td>
               <td style={s.td}>{g.name}</td><td style={s.td}>{g.phone ?? "—"}</td>
-              <td style={s.td}>{g.phone ? <a href={waUrl(g)} target="_blank" rel="noopener noreferrer" style={s.btn("var(--inv-accent)")}>Buka WA</a> : "—"}</td>
               <td style={s.td}><button style={s.btn()} onClick={() => setPreviewGuest(previewGuest?.id === g.id ? null : g)}>{previewGuest?.id === g.id ? "Tutup" : "Preview"}</button></td>
+              <td style={s.td}>{g.phone ? <button style={s.btn("var(--inv-accent)")} onClick={async () => { if (await sendToGuest(g)) show("Terkirim"); else show("Gagal", "err"); }}>Kirim</button> : "—"}</td>
             </tr>
           ))}
           {guests.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada tamu.</td></tr>}
         </tbody>
       </table>
       {previewGuest && <div style={s.previewBox}><strong>Preview untuk {previewGuest.name}:</strong><br />{fillMessage(previewGuest)}</div>}
-      <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-        <button style={s.btn()} onClick={() => { const u = bulkWaUrls(); if (!u.length) { show("Pilih tamu dengan nomor WA", "err"); return; } u.forEach((x) => window.open(x, "_blank")); }}>
-          Buka WA untuk {selectedIds.size} tamu
-        </button>
-        <button style={s.btn("var(--inv-base)")} onClick={() => { const u = bulkWaUrls(); if (!u.length) { show("Pilih tamu dengan nomor WA", "err"); return; } navigator.clipboard.writeText(u.join("\n")); show("Link WA tersalin"); }}>
-          Salin Link WA
+      <div style={{ marginTop: 16 }}>
+        <button style={s.btn()} onClick={sendSelected} disabled={sending}>
+          {sending ? "Mengirim..." : `Kirim ke ${selectedIds.size} tamu`}
         </button>
       </div>
     </div>
