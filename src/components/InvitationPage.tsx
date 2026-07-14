@@ -362,10 +362,14 @@ export default function InvitationPage({ guest }: { guest: GuestInfo }) {
     if (guest.id && typeof window !== "undefined" && !localStorage.getItem(`wa_thanks_${guest.id}`)) {
       localStorage.setItem(`wa_thanks_${guest.id}`, "1");
       fetch("/api/wa/thank-you", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id }) }).catch(() => {});
+
+      // 30-menit reminder WA kalo belum konfirmasi
+      const timer = setTimeout(() => {
+        fetch("/api/wa/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, confirm: "" }) }).catch(() => {});
+      }, 1800000); // 30 menit
+      return () => clearTimeout(timer);
     }
   }, [guest.id]);
-
-  return (
     <GuestProvider guest={guest}>
       <Home />
     </GuestProvider>

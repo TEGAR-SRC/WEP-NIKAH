@@ -1,6 +1,24 @@
+"use client";
+
+import { useState } from "react";
 import SlideFrame from "./SlideFrame";
+import { useGuest } from "@/lib/guest-context";
 
 export default function GiftSlide() {
+  const guest = useGuest();
+  const [sent, setSent] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
+  const sendGiftWA = async (type: string) => {
+    if (!guest.id || sending) return;
+    setSending(true);
+    try {
+      await fetch("/api/wa/gift", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, type }) });
+      setSent(type);
+    } catch {}
+    setSending(false);
+  };
+
   return (
     <div className="container-mobile" style={{ backgroundImage: "url(/api/r2/public/images/satumomen/bg.webp)" }}>
       <SlideFrame />
@@ -15,23 +33,40 @@ export default function GiftSlide() {
         }}>
           <div className="font-latin color-accent text-center" style={{ fontSize: 28 }}>Kirim Hadiah</div>
           <div style={{ width: 40, height: 2, background: "var(--inv-accent)", margin: "12px auto 16px", opacity: 0.4 }} />
-          <div className="text-center" style={{ fontSize: 13, color: "var(--inv-base)", lineHeight: 1.8, padding: "0 8px" }}>
-            Doa Restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberi hadiah kami sediakan fitur berikut
-          </div>
-          <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-            <button type="button" style={{
-              flex: 1, padding: "10px 16px", borderRadius: 50, border: "1px solid var(--inv-accent)",
-              background: "transparent", color: "var(--inv-accent)", fontSize: 13, cursor: "pointer", fontFamily: "Marcellus, serif", letterSpacing: 1,
-            }}>
-              Hadiah
-            </button>
-            <button type="button" style={{
-              flex: 1, padding: "10px 16px", borderRadius: 50, border: "1px solid var(--inv-accent)",
-              background: "transparent", color: "var(--inv-accent)", fontSize: 13, cursor: "pointer", fontFamily: "Marcellus, serif", letterSpacing: 1,
-            }}>
-              Kirim Kado
-            </button>
-          </div>
+
+          {sent ? (
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🙏</div>
+              <div style={{ fontFamily: "DM Serif Display, serif", fontSize: 16, color: "var(--inv-accent)", marginBottom: 8 }}>
+                Terima Kasih {guest.title} {guest.name}!
+              </div>
+              <div style={{ fontSize: 13, color: "var(--inv-base)", lineHeight: 1.6 }}>
+                {sent === "hadiah" ? "Terima kasih atas hadiahnya" : "Terima kasih sudah mengirimkan kado"}
+                <br />Doa restu Anda sangat berarti bagi kami ❤️
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="text-center" style={{ fontSize: 13, color: "var(--inv-base)", lineHeight: 1.8, padding: "0 8px" }}>
+                Doa Restu Anda merupakan karunia yang sangat berarti bagi kami. Namun jika Anda ingin memberi hadiah kami sediakan fitur berikut
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+                <button type="button" onClick={() => sendGiftWA("hadiah")} disabled={sending} style={{
+                  flex: 1, padding: "10px 16px", borderRadius: 50, border: "1px solid var(--inv-accent)",
+                  background: "transparent", color: "var(--inv-accent)", fontSize: 13, cursor: "pointer", fontFamily: "Marcellus, serif", letterSpacing: 1, opacity: sending ? 0.6 : 1,
+                }}>
+                  {sending ? "..." : "Hadiah"}
+                </button>
+                <button type="button" onClick={() => sendGiftWA("kado")} disabled={sending} style={{
+                  flex: 1, padding: "10px 16px", borderRadius: 50, border: "1px solid var(--inv-accent)",
+                  background: "transparent", color: "var(--inv-accent)", fontSize: 13, cursor: "pointer", fontFamily: "Marcellus, serif", letterSpacing: 1, opacity: sending ? 0.6 : 1,
+                }}>
+                  {sending ? "..." : "Kirim Kado"}
+                </button>
+              </div>
+            </>
+          )}
+
           <div style={{ marginTop: 16, padding: 16, borderRadius: 16, background: "rgba(174,116,0,0.06)", border: "1px solid rgba(174,116,0,0.1)" }}>
             <div style={{ width: 80, height: 80, margin: "auto", overflow: "hidden", borderRadius: 10 }}>
               <img src="/api/r2/public/images/digitainvite/images/bank-bca.png" alt="BCA" style={{ width: "100%", height: "100%", objectFit: "contain" }} />

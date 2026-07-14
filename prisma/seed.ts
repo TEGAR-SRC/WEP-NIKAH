@@ -635,6 +635,51 @@ Makasih doanya! 🙏` },
 
 Terima kasih doanya! 🙏🤲` },
 
+  { name: "gift (default)", subject: "Terima Kasih Hadiah", body: `{title} {name}
+
+Terima kasih banyak atas hadiah yang telah diberikan 🙏
+
+Doa restu dan perhatian Anda sangat berarti bagi kami. Semoga Allah membalas kebaikan {title} {name}.
+
+Wassalamualaikum
+Tegar & Vebiza 💕` },
+  { name: "gift (singkat)", subject: "🙏", body: `Makasih {title} {name} atas hadiahnya! 🙏❤️` },
+  { name: "gift (resmi)", subject: "Terima Kasih", body: `Yth. {title} {name}
+
+Kami mengucapkan terima kasih yang sebesar-besarnya atas hadiah yang telah diberikan. 
+
+Semoga Allah SWT membalas kebaikan {title} {name} dengan berlipat ganda.
+
+Wassalamualaikum Wr. Wb.
+Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+  { name: "gift (santai)", subject: "Makasih! 🎉", body: `Halo {title} {name}!
+
+Makasih banget atas hadiahnya! Kami sangat berterima kasih ❤️🎉
+
+Semoga berkah selalu!
+Tegar & Vebiza` },
+  { name: "kado (default)", subject: "Terima Kasih Kado", body: `{title} {name}
+
+Terima kasih banyak atas kado yang telah dikirimkan 🙏
+
+Kami sangat bersyukur memiliki {title} {name} yang begitu perhatian. Semoga Allah membalas kebaikan Anda.
+
+Wassalamualaikum
+Tegar & Vebiza 💕` },
+  { name: "kado (singkat)", subject: "🙏🎁", body: `Makasih {title} {name} atas kado nya! 🙏🎉` },
+  { name: "kado (resmi)", subject: "Terima Kasih", body: `Yth. {title} {name}
+
+Kami ucapkan terima kasih atas kado yang telah {title} {name} kirimkan. Perhatian dan doa restu Anda sangat berarti.
+
+Wassalamualaikum
+Tegar & Vebiza` },
+  { name: "kado (santai)", subject: "Kado nyampe! 🎁", body: `Hai {title} {name}!
+
+Kado nya udah sampe! Makasih banyak ya 😍🎉
+
+Kami tunggu kehadirannya!
+Tegar & Vebiza 💕` },
+
   {
     name: "undangan (English)",
     subject: "Wedding Invitation — Tegar & Vebiza",
