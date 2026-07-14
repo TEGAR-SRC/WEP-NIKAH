@@ -299,29 +299,61 @@ function TemplateTab() {
   };
   useEffect(() => { fetchThanks(); }, []);
 
+  const deleteTmpl = async (id: string) => {
+    if (!(await ask("Hapus template ini?"))) return;
+    await fetch(`/api/templates/${id}`, { method: "DELETE" });
+    fetchTemplates(); show("Template dihapus");
+  };
+
   const save = async () => {
     if (!selected) return;
     const r = await fetch(`/api/templates/${selected.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject, body }) });
     if (r.ok) { const u = await r.json(); setSelected(u); setSubject(u.subject); setBody(u.body); fetchTemplates(); show("Tersimpan"); }
   };
 
+  const createTmpl = async (name: string, subj: string, bdy: string) => {
+    if (!name.trim() || !bdy.trim()) { show("Isi nama dan body", "err"); return; }
+    const r = await fetch("/api/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name.trim(), subject: subj || "Template", body: bdy.trim() }) });
+    if (r.ok) { show("Template dibuat"); fetchTemplates(); fetchThanks(); }
+    else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+  };
+
+  const updateTmpl = async (id: string, name: string, subj: string, bdy: string) => {
+    if (!id) return;
+    const r = await fetch(`/api/templates/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, subject: subj, body: bdy }) });
+    if (r.ok) { show("Template diperbarui"); fetchTemplates(); fetchThanks(); }
+    else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+  };
+
   if (loading) return <div style={{ padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}><TableSkeleton cols={2} rows={3} /></div>;
   return (
     <div>
+      {/* ===== UCAPAN (WA) ===== */}
+      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Template Ucapan (WA)</h3>
       <div style={{ marginBottom: 12 }}>
-        <label style={s.label}>Pilih Template Ucapan (WA)</label>
-        <select style={{ ...s.select, maxWidth: 300 }} value={selected?.id ?? ""} onChange={(e) => { const t = templates.find((x) => x.id === e.target.value); if (t) { setSelected(t); setSubject(t.subject); setBody(t.body); } }}>
-          {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
+        <label style={s.label}>Pilih Template</label>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <select style={{ ...s.select, maxWidth: 300 }} value={selected?.id ?? ""} onChange={(e) => { const t = templates.find((x) => x.id === e.target.value); if (t) { setSelected(t); setSubject(t.subject); setBody(t.body); } }}>
+            {templates.filter((t) => !t.name.includes("terima kasih")).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+          {selected && <button style={s.btn("#b33")} onClick={() => deleteTmpl(selected.id)}>Hapus</button>}
+        </div>
       </div>
       <div style={{ marginBottom: 12 }}><label style={s.label}>Subjek</label><input style={s.input} value={subject} onChange={(e) => setSubject(e.target.value)} /></div>
       <div style={{ marginBottom: 12 }}>
         <label style={s.label}>Body</label><textarea style={s.textarea} value={body} onChange={(e) => setBody(e.target.value)} />
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
-      <div style={{ fontSize: 11, marginBottom: 12, opacity: 0.6 }}>Template ini untuk kirim undangan ke WA tamu.</div>
-      <button style={s.btn()} onClick={save}>Simpan</button>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button style={s.btn()} onClick={save}>Update</button>
+        <button style={s.btn("var(--inv-base)")} onClick={async () => {
+          const name = prompt("Nama template baru:");
+          if (!name) return;
+          await createTmpl(name, subject, body);
+        }}>Simpan Sebagai Baru</button>
+      </div>
 
+      {/* ===== TERIMA KASIH (WA OTOMATIS) ===== */}
       <div style={{ marginTop: 32, paddingTop: 20, borderTop: "2px solid var(--inv-accent)" }}>
         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>Pesan Terima Kasih (WA Otomatis)</h3>
         <div style={{ marginBottom: 12 }}>
@@ -338,9 +370,10 @@ function TemplateTab() {
             </select>
             <button style={s.btn("var(--inv-accent)")} onClick={async () => {
               if (!thanksActiveId) return;
-              const r = await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-              if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
-            }}>Terapkan</button>
+              await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
+              show("Template terima kasih diperbarui"); fetchThanks();
+            }}>Terapkan ✅</button>
+            {thanksPreview && <button style={s.btn("#b33")} onClick={() => deleteTmpl(thanksActiveId!)}>Hapus</button>}
           </div>
         </div>
         <div style={{ marginBottom: 12 }}>
@@ -353,23 +386,11 @@ function TemplateTab() {
           <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button style={s.btn()} onClick={async () => {
-            if (!newName.trim() || !newBody.trim()) { show("Isi nama dan body template", "err"); return; }
-            const r = await fetch("/api/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName.trim(), subject: "Terima Kasih", body: newBody.trim() }) });
-            if (r.ok) { show("Template disimpan"); fetchTemplates(); fetchThanks(); }
-            else { const e = await r.json(); show(e.error || "Gagal", "err"); }
-          }}>Simpan sebagai template baru</button>
-          {thanksPreview && (
-            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
-              if (!thanksActiveId) return;
-              const r = await fetch(`/api/templates/${thanksActiveId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName, body: newBody }) });
-              if (r.ok) { show("Template diperbarui"); fetchThanks(); fetchTemplates(); }
-            }}>Update template ini</button>
-          )}
+          <button style={s.btn("var(--inv-accent)")} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Update</button>
+          <button style={s.btn("var(--inv-base)")} onClick={() => createTmpl(newName, "Terima Kasih", newBody)}>Simpan Baru</button>
         </div>
         <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
-          Template ini akan dikirim otomatis ke WA tamu saat mereka membuka undangan.
-          Gunakan {`{title}`} untuk panggilan (Bapak/Ibu) dan {`{name}`} untuk nama tamu.
+          Template ini dikirim otomatis ke WA tamu saat mereka membuka undangan. Gunakan {`{title}`} dan {`{name}`}.
         </div>
       </div>
     </div>
