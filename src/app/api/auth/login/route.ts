@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { sign, verify } from "jsonwebtoken";
+import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { verify as argonVerify } from "argon2";
 
@@ -31,12 +32,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
 
-  try {
-    const valid = await argonVerify(admin.password, password);
-    if (!valid) {
-      return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
-    }
-  } catch {
+  let valid = false;
+  try { valid = await argonVerify(admin.password, password); } catch {}
+  if (!valid) {
+    // Fallback SHA256 untuk admin lama
+    valid = admin.password === createHash("sha256").update(password).digest("hex");
+  }
+  if (!valid) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
 
