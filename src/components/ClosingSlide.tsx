@@ -21,6 +21,10 @@ export default function ClosingSlide() {
             Hormat Kami Yang Mengundang
           </div>
           <div className="font-latin color-accent text-center" style={{ fontSize: 32, marginTop: 8 }}>Tegar &amp; Vebiza</div>
+          <div style={{ textAlign: "center", fontSize: 10, marginTop: 20, color: "#000", fontWeight: 700 }}>
+            Dibuat oleh tegararrahman
+            <div style={{ fontWeight: 600, marginTop: 2 }}>Next.js · Go · PostgreSQL · Redis</div>
+          </div>
         </div>
       </div>
     </div>
