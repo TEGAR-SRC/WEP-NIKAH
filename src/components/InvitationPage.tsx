@@ -317,6 +317,7 @@ function Home() {
                   overflow: "hidden",
                   touchAction: "none",
                   userSelect: "none",
+                  overscrollBehavior: "none",
                 }}
                 onTouchStart={(e) => { touchStartY.current = e.touches[0].clientY; }}
                 onTouchEnd={(e) => {

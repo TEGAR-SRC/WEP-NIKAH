@@ -117,6 +117,7 @@ export default function GuestbookSlide() {
       <div className="flex justify-center items-center" style={{ height: "100%", padding: "20px" }}>
         <div className="animate__animated animate__fadeIn animate__slower" style={{
           width: "100%",
+          maxHeight: "calc(100vh - 80px)",
           overflowY: "auto",
           background: "rgba(228,221,215,0.6)",
           backdropFilter: "blur(4px)",
