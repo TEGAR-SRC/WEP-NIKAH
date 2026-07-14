@@ -56,7 +56,7 @@ npx prisma generate
 # 6. Jalankan dev
 npm run dev
 ```
-
+s
 ## 🔐 Environment Variables
 
 Buka `.env.public` untuk template lengkap, lalu isi di `.env`:
