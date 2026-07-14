@@ -497,6 +497,7 @@ function AdminTab() {
   const [waQr, setWaQr] = useState<string | null>(null);
   const [thanksTemplates, setThanksTemplates] = useState<any[]>([]);
   const [thanksActiveId, setThanksActiveId] = useState<string | null>(null);
+  const [waChecking, setWaChecking] = useState(false);
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
