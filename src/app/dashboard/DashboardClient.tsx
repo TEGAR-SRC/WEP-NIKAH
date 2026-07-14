@@ -271,6 +271,8 @@ function TemplateTab() {
   const [selected, setSelected] = useState<Template | null>(null);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [thanksTemplates, setThanksTemplates] = useState<any[]>([]);
+  const [thanksActiveId, setThanksActiveId] = useState<string | null>(null);
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -282,6 +284,14 @@ function TemplateTab() {
     setLoading(false);
   };
   useEffect(() => { fetchTemplates(); }, []);
+
+  const fetchThanks = async () => {
+    const r = await fetch("/api/settings/thanks-template");
+    if (!r.ok) return;
+    const d = await r.json();
+    setThanksTemplates(d.templates); setThanksActiveId(d.activeId);
+  };
+  useEffect(() => { fetchThanks(); }, []);
 
   const save = async () => {
     if (!selected) return;
@@ -304,6 +314,25 @@ function TemplateTab() {
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
       <button style={s.btn()} onClick={save}>Simpan</button>
+
+      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid var(--inv-border)" }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "var(--inv-accent)" }}>Pesan Terima Kasih (WA)</h3>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <select value={thanksActiveId || ""} onChange={(e) => setThanksActiveId(e.target.value)} style={{ ...s.select, maxWidth: 300 }}>
+            {thanksTemplates.map((t: any) => (
+              <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
+            ))}
+          </select>
+          <button style={s.btn()} onClick={async () => {
+            if (!thanksActiveId) return;
+            const r = await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
+            if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
+          }}>Terapkan</button>
+        </div>
+        <div style={{ fontSize: 11, marginTop: 6, opacity: 0.6 }}>
+          Template ini akan dikirim otomatis ke WA tamu saat mereka membuka undangan.
+        </div>
+      </div>
     </div>
   );
 }
@@ -491,8 +520,6 @@ function AdminTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editEmail, setEditEmail] = useState("");
   const [editPassword, setEditPassword] = useState("");
-  const [thanksTemplates, setThanksTemplates] = useState<any[]>([]);
-  const [thanksActiveId, setThanksActiveId] = useState<string | null>(null);
   const [waChecking, setWaChecking] = useState(false);
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
@@ -504,14 +531,6 @@ function AdminTab() {
     setLoading(false);
   };
   useEffect(() => { fetchAdmins(); }, []);
-
-  const fetchThanks = async () => {
-    const r = await fetch("/api/settings/thanks-template");
-    if (!r.ok) return;
-    const d = await r.json();
-    setThanksTemplates(d.templates); setThanksActiveId(d.activeId);
-  };
-  useEffect(() => { fetchThanks(); }, []);
 
   const [waInstances, setWaInstances] = useState<any[]>([]);
 
@@ -620,26 +639,7 @@ function AdminTab() {
         </div>
       </div>
 
-      {/* Thanks Template Selector */}
-      <div style={{ marginTop: 12, marginBottom: 16, padding: 16, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "var(--inv-accent)" }}>Pesan Terima Kasih (WA)</h3>
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <select value={thanksActiveId || ""} onChange={(e) => setThanksActiveId(e.target.value)}
-            style={{ ...s.select, maxWidth: 300 }}>
-            {thanksTemplates.map((t: any) => (
-              <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
-            ))}
-          </select>
-          <button style={s.btn()} onClick={async () => {
-            if (!thanksActiveId) return;
-            const r = await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-            if (r.ok) { show("Template terima kasih diperbarui"); fetchThanks(); }
-          }}>Terapkan</button>
-        </div>
-        <div style={{ fontSize: 11, marginTop: 6, opacity: 0.6 }}>
-          Template ini akan dikirim otomatis ke tamu saat mereka membuka undangan.
-        </div>
-      </div>
+
     </div>
   );
 }
