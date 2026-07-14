@@ -284,18 +284,31 @@ function TemplateTab() {
 }
 
 type GuestStat = { id: string; name: string; title: string; slug: string; phone: string | null; opened: boolean; visitCount: number; lastVisit: string | null; waSent: boolean };
-type ChartDay = { date: string; count: number; unique: number };
+type ChartItem = { label: string; count: number; unique: number };
 type PathStat = { path: string; count: number };
 type RecentVisit = { id: string; type: string; guestId: string | null; ip: string; ua: string; path: string; time: string };
-type StatsData = { totalGuests: number; totalVisits: number; totalPageviews: number; uniqueVisitors: number; openedCount: number; notOpenedCount: number; guestStats: GuestStat[]; chart: ChartDay[]; topPaths: PathStat[]; recent: RecentVisit[] };
+type StatsData = { totalGuests: number; totalVisits: number; totalPageviews: number; uniqueVisitors: number; openedCount: number; notOpenedCount: number; guestStats: GuestStat[]; chart: ChartItem[]; topPaths: PathStat[]; recent: RecentVisit[]; filterDays: number };
+
+const RANGES = [
+  { label: "1 Hari", days: 1 }, { label: "3 Hari", days: 3 }, { label: "7 Hari", days: 7 },
+  { label: "1 Bulan", days: 30 }, { label: "3 Bulan", days: 90 }, { label: "6 Bulan", days: 180 }, { label: "1 Tahun", days: 365 },
+];
 
 function StatsTab() {
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [rangeDays, setRangeDays] = useState(0);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "opened" | "not">("all");
   const [showRecent, setShowRecent] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  useEffect(() => { fetch("/api/stats").then((r) => r.json()).then(setStats).catch(() => {}); }, []);
+  const fetchStats = async (days: number) => {
+    const q = days > 0 ? `?days=${days}` : "";
+    const r = await fetch(`/api/stats${q}`);
+    if (r.ok) setStats(await r.json());
+  };
+  useEffect(() => { fetchStats(rangeDays); }, [rangeDays]);
 
   if (!stats) return <div style={{ fontSize: 13 }}>Memuat...</div>;
 
@@ -303,23 +316,38 @@ function StatsTab() {
   const filtered = stats.guestStats
     .filter((g) => g.name.toLowerCase().includes(search.toLowerCase()))
     .filter((g) => filter === "all" || (filter === "opened" ? g.opened : !g.opened));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  const paged = filtered.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
   return (
     <div>
-      {/* Clickable stat cards */}
+      {/* Date range filter */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 12, flexWrap: "wrap" }}>
+        {RANGES.map((r) => (
+          <button key={r.days} onClick={() => { setRangeDays(r.days); setPage(0); }}
+            style={{ padding: "5px 12px", border: "1px solid var(--inv-border)", borderRadius: 6, cursor: "pointer", fontSize: 12, background: rangeDays === r.days ? "var(--inv-accent)" : "transparent", color: rangeDays === r.days ? "var(--btn-color)" : "var(--inv-base)", fontWeight: rangeDays === r.days ? 700 : 400 }}>
+            {r.label}
+          </button>
+        ))}
+        <button onClick={() => { setRangeDays(0); setPage(0); }}
+          style={{ padding: "5px 12px", border: "1px solid var(--inv-border)", borderRadius: 6, cursor: "pointer", fontSize: 12, background: rangeDays === 0 ? "var(--inv-accent)" : "transparent", color: rangeDays === 0 ? "var(--btn-color)" : "var(--inv-base)", fontWeight: rangeDays === 0 ? 700 : 400 }}>
+          Semua Waktu
+        </button>
+      </div>
+
+      {/* Stat cards */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
         {[
-          { label: "Total Tamu", value: stats.totalGuests, key: "all" as const },
-          { label: "Total Kunjungan", value: stats.totalVisits, key: "all" as const },
-          { label: "Total Pageview", value: stats.totalPageviews, key: "all" as const },
-          { label: "Pengunjung Unik", value: stats.uniqueVisitors, key: "all" as const },
-          { label: "Sudah Buka", value: stats.openedCount, key: "opened" as const },
-          { label: "Belum Buka", value: stats.notOpenedCount, key: "not" as const },
-        ].map(({ label, value, key }) => (
-          <div key={label} onClick={() => key !== "all" && setFilter(key)}
-            style={{ flex: "1 0 120px", padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center", cursor: key !== "all" ? "pointer" : "default", background: filter === key ? "rgba(174,116,0,0.08)" : "transparent" }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
-            <div style={{ fontSize: 10, marginTop: 4, opacity: 0.7 }}>{label}</div>
+          { label: "Total Tamu", value: stats.totalGuests },
+          { label: "Kunjungan", value: stats.totalVisits },
+          { label: "Pageview", value: stats.totalPageviews },
+          { label: "Pengunjung Unik", value: stats.uniqueVisitors },
+          { label: "Sudah Buka", value: stats.openedCount },
+          { label: "Belum Buka", value: stats.notOpenedCount },
+        ].map(({ label, value }) => (
+          <div key={label} style={{ flex: "1 0 100px", padding: 10, borderRadius: 8, border: "1px solid var(--inv-border)", textAlign: "center" }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>{value}</div>
+            <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{label}</div>
           </div>
         ))}
       </div>
@@ -327,14 +355,19 @@ function StatsTab() {
       {/* Chart */}
       {stats.chart.length > 0 && (
         <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Kunjungan 14 Hari Terakhir</div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 80 }}>
-            {stats.chart.map((d) => (
-              <div key={d.date} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <div title={`${d.date}: ${d.count} kunjungan, ${d.unique} unik`} style={{ width: "100%", background: "var(--inv-accent)", height: `${(d.count / maxChart) * 70}px`, borderRadius: "4px 4px 0 0", minHeight: 4, opacity: 0.8 }} />
-                <div style={{ fontSize: 8, marginTop: 2, opacity: 0.5, transform: "rotate(-45deg)" }}>{d.date.slice(5)}</div>
-              </div>
-            ))}
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
+            Grafik Kunjungan {rangeDays > 0 ? `(${rangeDays} hari terakhir)` : "(semua waktu)"}
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 100 }}>
+            {stats.chart.map((d, i) => {
+              const h = Math.max(4, (d.count / maxChart) * 85);
+              return (
+                <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+                  <div title={`${d.label}: ${d.count} kunjungan`} style={{ width: "100%", background: "var(--inv-accent)", height: h, borderRadius: "3px 3px 0 0", opacity: 0.7 + (d.count / maxChart) * 0.3 }} />
+                  <div style={{ fontSize: 7, marginTop: 1, opacity: 0.4, whiteSpace: "nowrap" }}>{d.label.includes(":") ? d.label.split(":").pop() : d.label.slice(d.label.length - 2)}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -345,8 +378,7 @@ function StatsTab() {
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Halaman Terpopuler</div>
           {stats.topPaths.map((p) => (
             <div key={p.path} style={{ display: "flex", justifyContent: "space-between", fontSize: 11, padding: "2px 0", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-              <span style={{ opacity: 0.7 }}>{p.path}</span>
-              <span style={{ fontWeight: 600 }}>{p.count}x</span>
+              <span style={{ opacity: 0.7 }}>{p.path}</span><span style={{ fontWeight: 600 }}>{p.count}x</span>
             </div>
           ))}
         </div>
@@ -360,11 +392,9 @@ function StatsTab() {
         <button style={s.btn(filter === "not" ? "var(--inv-accent)" : "var(--inv-base)")} onClick={() => setFilter("not")}>Belum</button>
       </div>
       <table style={s.table}>
-        <thead><tr>
-          <th style={s.th}>Nama</th><th style={s.th}>Link</th><th style={s.th}>Dibuka</th><th style={s.th}>Kunjungan</th><th style={s.th}>Terakhir</th><th style={s.th}>WA</th>
-        </tr></thead>
+        <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Link</th><th style={s.th}>Dibuka</th><th style={s.th}>Kunjungan</th><th style={s.th}>Terakhir</th><th style={s.th}>WA</th></tr></thead>
         <tbody>
-          {filtered.map((g) => (
+          {paged.map((g) => (
             <tr key={g.id}>
               <td style={s.td}>{g.title} {g.name}</td>
               <td style={s.td}><code style={{ fontSize: 11 }}>{g.slug}</code></td>
@@ -374,11 +404,32 @@ function StatsTab() {
               <td style={s.td}>{g.waSent ? "✅" : "—"}</td>
             </tr>
           ))}
-          {filtered.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
+          {paged.length === 0 && <tr><td style={s.td} colSpan={6}>Tidak ada tamu.</td></tr>}
         </tbody>
       </table>
 
-      {/* Recent visits toggle */}
+      {/* Pagination + rows per page */}
+      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+          <span>Rows:</span>
+          <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }}
+            style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", fontSize: 13 }}>
+            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
+          <button disabled={page === 0} onClick={() => setPage(page - 1)}
+            style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button key={i} onClick={() => setPage(i)}
+              style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
+          ))}
+          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}
+            style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
+        </div>
+      </div>
+
+      {/* Recent */}
       <div style={{ marginTop: 16 }}>
         <button style={s.btn("var(--inv-base)")} onClick={() => setShowRecent(!showRecent)}>
           {showRecent ? "Sembunyikan" : "Lihat"} Kunjungan Terbaru ({stats.recent.length})
@@ -386,12 +437,11 @@ function StatsTab() {
         {showRecent && (
           <div style={{ marginTop: 8, maxHeight: 300, overflowY: "auto", border: "1px solid var(--inv-border)", borderRadius: 8, padding: 8 }}>
             <table style={{ ...s.table, fontSize: 11 }}>
-              <thead><tr><th style={s.th}>Waktu</th><th style={s.th}>Tipe</th><th style={s.th}>IP</th><th style={s.th}>Halaman</th><th style={s.th}>UA</th></tr></thead>
+              <thead><tr><th style={s.th}>Waktu</th><th style={s.th}>IP</th><th style={s.th}>Halaman</th><th style={s.th}>UA</th></tr></thead>
               <tbody>
-                {stats.recent.map((r) => (
+                {stats.recent.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((r) => (
                   <tr key={r.id}>
                     <td style={s.td}>{new Date(r.time).toLocaleString("id-ID")}</td>
-                    <td style={s.td}>{r.type === "visit" ? "📩" : "👁"}</td>
                     <td style={s.td}><code>{r.ip}</code></td>
                     <td style={s.td}><code>{r.path}</code></td>
                     <td style={{ ...s.td, fontSize: 10, maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.ua}</td>
