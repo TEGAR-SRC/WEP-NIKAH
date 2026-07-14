@@ -79,13 +79,13 @@ export default function GuestbookSlide() {
 
   useEffect(() => { fetchComments(1); }, [fetchComments]);
 
-  const isDev = typeof window !== "undefined" && window.location.hostname === "localhost";
+  const hasCaptcha = typeof process !== "undefined" && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
     if (!guest.id) { setError("Silakan buka undangan via link pribadi Anda"); return; }
-    if (!isDev && !turnstileToken) { setError("Verifikasi captcha dulu"); return; }
+    if (hasCaptcha && !turnstileToken) { setError("Verifikasi captcha dulu"); return; }
     setSending(true);
     setError("");
     try {
@@ -258,7 +258,7 @@ export default function GuestbookSlide() {
                 ))}
               </div>
 
-              {!isDev && <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
+              {hasCaptcha && <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
                 <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setTurnstileToken} />
               </div>}
 
