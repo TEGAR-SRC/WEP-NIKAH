@@ -15,10 +15,10 @@ function slugify(name: string) {
 }
 
 const s = {
-  container: { maxWidth: 800, margin: "0 auto", padding: "24px 16px", background: "var(--inv-bg)", color: "var(--inv-base)", fontFamily: "var(--font-base)", minHeight: "100vh", overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", touchAction: "pan-y" } as React.CSSProperties,
+  container: { maxWidth: 800, margin: "0 auto", padding: "24px 16px", background: "var(--inv-bg)", color: "var(--inv-base)", fontFamily: "var(--font-base)", minHeight: "100vh" } as React.CSSProperties,
   h1: { fontSize: 24, marginBottom: 16 },
-  tabs: { display: "flex", gap: 4, borderBottom: "2px solid var(--inv-border)", marginBottom: 20 },
-  tab: (a: boolean): React.CSSProperties => ({ padding: "8px 18px", cursor: "pointer", border: "none", background: a ? "var(--inv-accent)" : "transparent", color: a ? "var(--btn-color)" : "var(--inv-base)", borderRadius: "8px 8px 0 0", fontWeight: a ? 700 : 400, fontSize: 14 }),
+  tabs: { display: "flex", gap: 4, borderBottom: "2px solid var(--inv-border)", marginBottom: 20, overflowX: "auto", WebkitOverflowScrolling: "touch", flexShrink: 0, scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties,
+  tab: (a: boolean): React.CSSProperties => ({ padding: "8px 12px", cursor: "pointer", border: "none", background: a ? "var(--inv-accent)" : "transparent", color: a ? "var(--btn-color)" : "var(--inv-base)", borderRadius: "8px 8px 0 0", fontWeight: a ? 700 : 400, fontSize: 13, whiteSpace: "nowrap", flexShrink: 0 }),
   table: { width: "100%", borderCollapse: "collapse" as const, fontSize: 13 },
   th: { textAlign: "left" as const, padding: "8px 6px", borderBottom: "1px solid var(--inv-border)", fontWeight: 700 },
   td: { padding: "8px 6px", borderBottom: "1px solid var(--inv-border)", verticalAlign: "middle" as const },
@@ -77,6 +77,11 @@ function ConfirmProvider({ children }: { children: ReactNode }) {
 
 export default function DashboardClient() {
   const [tab, setTab] = useState<Tab>("Tamu");
+
+  useEffect(() => {
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+  }, []);
 
   return (
     <div style={s.container}>
