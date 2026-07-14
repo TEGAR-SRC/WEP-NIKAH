@@ -27,7 +27,7 @@ Dengan memohon Rahmat dan Ridho Allah SWT, melalui pesan ini kami mengundang {ti
 Tegar Arrahman & Vebiza Juinda Putri Zahara
 
 Berikut link undangan kami:
-https://nikah.tegar-src.xyz/undangan/{slug}
+{BASE_URL}/undangan/{slug}
 
 Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila {title} {name} berkenan untuk hadir dan memberikan doa restu.
 
