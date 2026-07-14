@@ -1,9 +1,11 @@
 import { PrismaClient } from "../src/generated/prisma/client.js";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { createHash } from "crypto";
 
-const prisma = new PrismaClient({
-  adapter: new PrismaLibSql({ url: "file:./prisma/dev.db" }),
-});
+const url = process.env.DATABASE_URL ?? "postgresql://xxken:xxkenxyz@104.250.122.51:35432/nikah";
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
+
+const hash = (pw: string) => createHash("sha256").update(pw).digest("hex");
 
 const guests = [
   { name: "Vebriza Juinda Putri Zahara", slug: "vebriza", phone: "6281234567890", title: "Ibu" },
@@ -37,6 +39,12 @@ Tegar & Vebiza`,
 };
 
 async function main() {
+  await prisma.admin.upsert({
+    where: { email: "admin@nikah.com" },
+    update: {},
+    create: { email: "admin@nikah.com", password: hash("admin123") },
+  });
+
   for (const g of guests) {
     await prisma.guest.upsert({
       where: { slug: g.slug },

@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -11,13 +12,14 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!email.trim() || !password.trim()) { setError("Isi email dan password"); return; }
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email: email.trim(), password }),
     });
     if (res.ok) router.push("/dashboard");
-    else setError("Password salah");
+    else setError("Email atau password salah");
   };
 
   return (
@@ -32,17 +34,27 @@ export default function LoginPage() {
         <h1 style={{ fontSize: 24, marginBottom: 20, fontFamily: "DM Serif Display, serif", color: "var(--inv-accent)" }}>
           Dashboard
         </h1>
-        <input
-          type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password" autoFocus
-          style={{
-            width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--inv-border)",
-            background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
-          }}
-        />
-        {error && <div style={{ color: "#c00", fontSize: 12, marginTop: 8 }}>{error}</div>}
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", fontSize: 12, marginBottom: 4, fontWeight: 600 }}>Email</label>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@nikah.com" autoFocus
+            style={{
+              width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--inv-border)",
+              background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
+            }} />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label style={{ display: "block", fontSize: 12, marginBottom: 4, fontWeight: 600 }}>Password</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            style={{
+              width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--inv-border)",
+              background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
+            }} />
+        </div>
+        {error && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{error}</div>}
         <button type="submit" style={{
-          width: "100%", marginTop: 16, padding: "10px", borderRadius: 8, border: "none",
+          width: "100%", padding: "10px", borderRadius: 8, border: "none",
           background: "var(--inv-accent)", color: "var(--btn-color)", fontSize: 14, cursor: "pointer",
         }}>
           Masuk
