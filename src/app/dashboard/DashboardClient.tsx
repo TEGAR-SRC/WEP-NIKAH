@@ -225,34 +225,41 @@ function TemplateTab() {
   );
 }
 
+type WALog = { id: string; type: string; guestId: string | null; detail: string | null; createdAt: string };
+
 function KirimWATab() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [previewGuest, setPreviewGuest] = useState<Guest | null>(null);
   const [waConnected, setWaConnected] = useState(false);
+  const [waConnecting, setWaConnecting] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [logs, setLogs] = useState<WALog[]>([]);
+  const [showLogs, setShowLogs] = useState(false);
   const { show } = useContext(NotifCtx);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const checkWA = useCallback(async () => {
     try {
       const r = await fetch("/api/wa/status");
       const d = await r.json();
       setWaConnected(d.connected);
-      if (d.qrCode) setQrCode(d.qrCode);
+      setWaConnecting(d.connecting);
+      if (d.qr) setQrCode(d.qr);
       if (d.connected) setQrCode(null);
     } catch {}
   }, []);
 
   useEffect(() => {
     checkWA();
-    intervalRef.current = setInterval(checkWA, 3000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    const id = setInterval(checkWA, 3000);
+    return () => clearInterval(id);
   }, [checkWA]);
 
   useEffect(() => { (async () => { const [gR, tR] = await Promise.all([fetch("/api/guests"), fetch("/api/templates")]); if (gR.ok) setGuests(await gR.json()); if (tR.ok) { const list: Template[] = await tR.json(); const d = list.find((t) => t.name === "undangan") || list[0]; if (d) setTemplate(d); } })(); }, []);
+
+  const fetchLogs = async () => { try { const r = await fetch("/api/wa/logs"); if (r.ok) setLogs(await r.json()); } catch {} };
 
   const toggle = (id: string) => { const n = new Set(selectedIds); if (n.has(id)) n.delete(id); else n.add(id); setSelectedIds(n); };
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
@@ -260,7 +267,7 @@ function KirimWATab() {
 
   const sendToGuest = async (g: Guest) => {
     const msg = fillMessage(g);
-    if (!msg) return;
+    if (!msg) return false;
     const r = await fetch("/api/wa/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: g.id, message: msg }) });
     return r.ok;
   };
@@ -274,31 +281,54 @@ function KirimWATab() {
       if (await sendToGuest(g)) ok++; else fail++;
     }
     setSending(false);
+    fetchLogs();
     show(`${ok} terkirim, ${fail} gagal`);
   };
 
-  if (!waConnected) {
-    return (
-      <div style={{ textAlign: "center", padding: "40px 0" }}>
-        <div style={{ fontSize: 14, marginBottom: 16 }}>Scan QR code ini dengan WhatsApp untuk menghubungkan:</div>
-        {qrCode ? (
-          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrCode)}`} alt="QR Code" style={{ width: 250, height: 250, borderRadius: 8 }} />
-        ) : (
-          <div style={{ fontSize: 13, color: "var(--inv-accent)" }}>Memuat QR code...</div>
-        )}
-        <div style={{ fontSize: 12, marginTop: 16, color: "var(--inv-base)", opacity: 0.7 }}>
-          Buka WhatsApp {">"} Titik Tiga {">"} Perangkat Tertaut {">"} Scan
-        </div>
-      </div>
-    );
-  }
+  const statusColor = waConnected ? "#28a745" : waConnecting ? "#ffc107" : "#dc3545";
+  const statusText = waConnected ? "Terhubung" : waConnecting ? "Menghubungkan..." : "Terputus";
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 13, color: "var(--inv-accent)" }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#28a745", display: "inline-block" }} />
-        WhatsApp terhubung
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 10, height: 10, borderRadius: "50%", background: statusColor, display: "inline-block" }} />
+          <span style={{ fontSize: 13 }}>WhatsApp: <strong>{statusText}</strong></span>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {!waConnected && !waConnecting && <button style={s.btn("var(--inv-accent)")} onClick={() => { fetch("/api/wa/connect", { method: "POST" }); show("Menghubungkan..."); }}>Hubungkan</button>}
+          {waConnecting && <button style={s.btn("#ffc107")} onClick={() => { fetch("/api/wa/disconnect", { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } }); show("Dibatalkan"); }}>Batal</button>}
+          {waConnected && <button style={s.btn("#dc3545")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: false }), headers: { "Content-Type": "application/json" } }); show("Terputus"); }}>Putuskan</button>}
+          <button style={s.btn("#b33")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: true }), headers: { "Content-Type": "application/json" } }); show("Sesi dihapus"); }}>Hapus Sesi</button>
+          <button style={s.btn("var(--inv-base)")} onClick={() => { setShowLogs(!showLogs); if (!showLogs) fetchLogs(); }}>{showLogs ? "Tutup Log" : "Log"}</button>
+        </div>
       </div>
+
+      {!waConnected && qrCode && (
+        <div style={{ textAlign: "center", padding: "16px 0", borderBottom: "1px solid var(--inv-border)", marginBottom: 16 }}>
+          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrCode)}`} alt="QR" style={{ width: 220, height: 220, borderRadius: 8 }} />
+          <div style={{ fontSize: 12, marginTop: 10, color: "var(--inv-base)", opacity: 0.7 }}>
+            Scan dengan WhatsApp {"=>"} Titik Tiga {"=>"} Perangkat Tertaut
+          </div>
+        </div>
+      )}
+
+      {showLogs && (
+        <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)", maxHeight: 200, overflowY: "auto" }}>
+          <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Log Pesan</div>
+          {logs.length === 0 && <div style={{ fontSize: 12, opacity: 0.6 }}>Belum ada log.</div>}
+          {logs.map((l) => (
+            <div key={l.id} style={{ fontSize: 11, marginBottom: 4, lineHeight: 1.4 }}>
+              <span style={{ opacity: 0.5 }}>{new Date(l.createdAt).toLocaleString("id-ID")}</span>
+              {" "}{l.type === "sent_wa" ? "✅" : "📋"}{" "}
+              <span style={{ color: l.detail?.includes("gagal") || l.detail?.includes("error") ? "#c00" : "inherit" }}>
+                {l.detail || l.type}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <table style={s.table}>
         <thead><tr>
           <th style={{ ...s.th, width: 32 }}><input type="checkbox" style={s.checkbox} onChange={(e) => { if (e.target.checked) setSelectedIds(new Set(guests.map((g) => g.id))); else setSelectedIds(new Set()); }} checked={selectedIds.size === guests.length && guests.length > 0} /></th>
@@ -310,7 +340,7 @@ function KirimWATab() {
               <td style={s.td}><input type="checkbox" style={s.checkbox} checked={selectedIds.has(g.id)} onChange={() => toggle(g.id)} /></td>
               <td style={s.td}>{g.name}</td><td style={s.td}>{g.phone ?? "—"}</td>
               <td style={s.td}><button style={s.btn()} onClick={() => setPreviewGuest(previewGuest?.id === g.id ? null : g)}>{previewGuest?.id === g.id ? "Tutup" : "Preview"}</button></td>
-              <td style={s.td}>{g.phone ? <button style={s.btn("var(--inv-accent)")} onClick={async () => { if (await sendToGuest(g)) show("Terkirim"); else show("Gagal", "err"); }}>Kirim</button> : "—"}</td>
+              <td style={s.td}>{g.phone ? <button style={s.btn("var(--inv-accent)")} onClick={async () => { if (await sendToGuest(g)) { show("Terkirim"); fetchLogs(); } else show("Gagal", "err"); }}>Kirim</button> : "—"}</td>
             </tr>
           ))}
           {guests.length === 0 && <tr><td style={s.td} colSpan={5}>Belum ada tamu.</td></tr>}
