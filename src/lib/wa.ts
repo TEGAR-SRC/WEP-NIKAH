@@ -22,5 +22,5 @@ export async function getInstances() {
 export async function sendMessage(phone: string, text: string) {
   const number = phone.replace(/[^0-9]/g, "");
   const key = instanceToken || GLOBAL_KEY;
-  return api("POST", "send/text", { message: { number, text, delay: 1200 } }, key);
+  return api("POST", "send/text", { number, text, delay: 1200 }, key);
 }
