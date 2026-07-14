@@ -24,7 +24,9 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-RUN npx prisma generate
+RUN npx prisma generate && \
+    mkdir -p wa_session && \
+    chown -R nextjs:nodejs wa_session /app
 
 EXPOSE 3000
 
