@@ -34,13 +34,22 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
   height: 100%;
-  overflow: hidden;
+}
+
+body {
+  min-height: 100%;
   background: var(--inv-bg);
   color: var(--inv-base);
   font-family: var(--font-base);
   -webkit-font-smoothing: antialiased;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.invitation-open {
+  overflow: hidden;
 }
 
 body {

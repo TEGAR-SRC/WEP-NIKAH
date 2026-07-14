@@ -15,7 +15,7 @@ function slugify(name: string) {
 }
 
 const s = {
-  container: { maxWidth: 800, margin: "0 auto", padding: "24px 16px", background: "var(--inv-bg)", color: "var(--inv-base)", fontFamily: "var(--font-base)", minHeight: "100vh" } as React.CSSProperties,
+  container: { maxWidth: 800, margin: "0 auto", padding: "24px 16px", background: "var(--inv-bg)", color: "var(--inv-base)", fontFamily: "var(--font-base)", minHeight: "100vh", overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", touchAction: "pan-y" } as React.CSSProperties,
   h1: { fontSize: 24, marginBottom: 16 },
   tabs: { display: "flex", gap: 4, borderBottom: "2px solid var(--inv-border)", marginBottom: 20 },
   tab: (a: boolean): React.CSSProperties => ({ padding: "8px 18px", cursor: "pointer", border: "none", background: a ? "var(--inv-accent)" : "transparent", color: a ? "var(--btn-color)" : "var(--inv-base)", borderRadius: "8px 8px 0 0", fontWeight: a ? 700 : 400, fontSize: 14 }),
@@ -352,22 +352,40 @@ function StatsTab() {
         ))}
       </div>
 
-      {/* Chart */}
-      {stats.chart.length > 0 && (
+      {/* Chart — SVG line graph */}
+      {stats.chart.length > 1 && (
         <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
             Grafik Kunjungan {rangeDays > 0 ? `(${rangeDays} hari terakhir)` : "(semua waktu)"}
           </div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 100 }}>
-            {stats.chart.map((d, i) => {
-              const h = Math.max(4, (d.count / maxChart) * 85);
-              return (
-                <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
-                  <div title={`${d.label}: ${d.count} kunjungan`} style={{ width: "100%", background: "var(--inv-accent)", height: h, borderRadius: "3px 3px 0 0", opacity: 0.7 + (d.count / maxChart) * 0.3 }} />
-                  <div style={{ fontSize: 7, marginTop: 1, opacity: 0.4, whiteSpace: "nowrap" }}>{d.label.includes(":") ? d.label.split(":").pop() : d.label.slice(d.label.length - 2)}</div>
-                </div>
-              );
-            })}
+          <div style={{ position: "relative", width: "100%", height: 120 }}>
+            <svg viewBox={`0 0 ${stats.chart.length * 30} 120`} preserveAspectRatio="xMidYMid meet" style={{ width: "100%", height: 120 }}>
+              <defs>
+                <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--inv-accent)" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="var(--inv-accent)" stopOpacity="0.02" />
+                </linearGradient>
+              </defs>
+              {(() => {
+                const w = 30, h = 100;
+                const pts = stats.chart.map((d, i) => ({ x: i * w + w / 2, y: h - (d.count / maxChart) * 90 }));
+                const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+                const area = `M${pts[0].x},100 ${pts.map((p) => `L${p.x},${p.y}`).join(" ")} L${pts[pts.length - 1].x},100 Z`;
+                return <>
+                  <path d={area} fill="url(#lineFill)" />
+                  <path d={line} fill="none" stroke="var(--inv-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  {pts.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--inv-accent)" stroke="#fff" strokeWidth="1.5">
+                      <title>{stats.chart[i].label}: {stats.chart[i].count} kunjungan</title>
+                    </circle>
+                  ))}
+                </>;
+              })()}
+            </svg>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8, opacity: 0.4, marginTop: 2 }}>
+            <span>{stats.chart[0]?.label}</span>
+            <span>{stats.chart[stats.chart.length - 1]?.label}</span>
           </div>
         </div>
       )}
