@@ -340,6 +340,11 @@ function TemplateTab() {
           <select style={{ ...s.select, maxWidth: 300 }} value={selected?.id ?? ""} onChange={(e) => { const t = templates.find((x) => x.id === e.target.value); if (t) { setSelected(t); setSubject(t.subject); setBody(t.body); } }}>
             {templates.filter((t) => !t.name.includes("terima kasih")).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
+          <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+            if (!selected) return;
+            await fetch(`/api/templates/${selected.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "undangan" }) });
+            fetchTemplates(); show("Template ditetapkan sebagai default");
+          }}>Terapkan ✅</button>
           {selected && <button style={s.btn("#b33")} onClick={() => deleteTmpl(selected.id)}>Hapus</button>}
         </div>
       </div>
@@ -350,11 +355,6 @@ function TemplateTab() {
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button style={s.btn()} onClick={save}>Simpan</button>
-        <button style={s.btn("var(--inv-accent)")} onClick={async () => {
-          if (!selected) return;
-          await fetch(`/api/templates/${selected.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "undangan" }) });
-          fetchTemplates(); show("Template ditetapkan sebagai default");
-        }}>Terapkan ✅</button>
         <button style={s.btn("var(--inv-base)")} onClick={() => { setShowCreateUcapan(!showCreateUcapan); setCreateName(""); }}>{showCreateUcapan ? "Batal" : "Simpan Baru"}</button>
       </div>
       {showCreateUcapan && (
@@ -383,6 +383,11 @@ function TemplateTab() {
               ))}
               {thanksTemplates.length === 0 && <option value="">Tidak ada template</option>}
             </select>
+            <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+              if (!thanksActiveId) return;
+              await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
+              show("Template ditetapkan sebagai default"); fetchThanks();
+            }}>Terapkan ✅</button>
             {thanksPreview && <button style={s.btn("#b33")} onClick={() => deleteTmpl(thanksActiveId!)}>Hapus</button>}
           </div>
         </div>
@@ -394,11 +399,6 @@ function TemplateTab() {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button style={s.btn()} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Simpan</button>
-          <button style={s.btn("var(--inv-accent)")} onClick={async () => {
-            if (!thanksActiveId) return;
-            await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-            show("Template ditetapkan sebagai default"); fetchThanks();
-          }}>Terapkan ✅</button>
           <button style={s.btn("var(--inv-base)")} onClick={() => setShowCreateThanks(!showCreateThanks)}>{showCreateThanks ? "Batal" : "Simpan Baru"}</button>
         </div>
         {showCreateThanks && (
