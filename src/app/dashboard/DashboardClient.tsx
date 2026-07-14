@@ -481,6 +481,10 @@ function StatsTab() {
 
 type AdminUser = { id: string; email: string; createdAt: string };
 
+const WA_INSTANCE = "nikah";
+const EVO_BASE = process.env.NEXT_PUBLIC_EVOLUTION_API_URL || "/api/wa";
+const EVO_KEY = process.env.NEXT_PUBLIC_EVOLUTION_API_KEY || "";
+
 function AdminTab() {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -489,6 +493,9 @@ function AdminTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editEmail, setEditEmail] = useState("");
   const [editPassword, setEditPassword] = useState("");
+  const [waStatus, setWaStatus] = useState<any>(null);
+  const [waQr, setWaQr] = useState<string | null>(null);
+  const [waChecking, setWaChecking] = useState(false);
   const { show } = useContext(NotifCtx);
   const { ask } = useContext(ConfirmCtx);
 
@@ -499,6 +506,19 @@ function AdminTab() {
     setLoading(false);
   };
   useEffect(() => { fetchAdmins(); }, []);
+
+  const checkWA = async () => {
+    setWaChecking(true);
+    try {
+      const r = await fetch("/api/wa/status");
+      const d = await r.json();
+      setWaStatus(d);
+      if (d.qr) setWaQr(d.qr);
+      if (d.connected) setWaQr(null);
+    } catch {}
+    setWaChecking(false);
+  };
+  useEffect(() => { checkWA(); const id = setInterval(checkWA, 5000); return () => clearInterval(id); }, []);
 
   const addAdmin = async () => {
     if (!email.trim() || !password.trim()) { show("Isi email dan password", "err"); return; }
@@ -563,6 +583,32 @@ function AdminTab() {
           {admins.length === 0 && <tr><td style={s.td} colSpan={3}>Belum ada admin.</td></tr>}
         </tbody>
       </table></div>
+
+      {/* --- WA API Management --- */}
+      <div style={{ marginTop: 24, marginBottom: 16, padding: 16, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "var(--inv-accent)", fontFamily: "DM Serif Display, serif" }}>WhatsApp API (Evolution GO)</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 13 }}>
+          <span>Status:</span>
+          <span style={{
+            display: "inline-block", width: 10, height: 10, borderRadius: "50%",
+            background: waStatus?.connected ? "#28a745" : waStatus?.connecting ? "#ffc107" : "#dc3545",
+          }} />
+          <strong>{waStatus?.connected ? "Terhubung" : waStatus?.connecting ? "Menghubungkan..." : "Terputus"}</strong>
+          {waChecking && <span style={{ fontSize: 11, opacity: 0.5 }}>mengecek...</span>}
+        </div>
+        <div style={{ fontSize: 12, marginBottom: 8, opacity: 0.7 }}>Instance: <code>{WA_INSTANCE}</code></div>
+        {waQr && (
+          <div style={{ textAlign: "center", padding: 12, background: "#fff", borderRadius: 8, marginBottom: 12 }}>
+            <img src={waQr.startsWith("data:") ? waQr : `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(waQr)}`} alt="QR" style={{ width: 200, height: 200 }} />
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <button style={s.btn("var(--inv-accent)")} onClick={async () => { await fetch("/api/wa/connect", { method: "POST" }); show("Menghubungkan..."); }}>Hubungkan</button>
+          <button style={s.btn("#dc3545")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } }); show("Terputus"); }}>Putuskan</button>
+          <button style={s.btn("#b33")} onClick={async () => { await fetch("/api/wa/disconnect", { method: "POST", body: JSON.stringify({ deleteSession: true }), headers: { "Content-Type": "application/json" } }); show("Sesi dihapus"); }}>Hapus Sesi</button>
+          <button style={s.btn("var(--inv-base)")} onClick={() => { checkWA(); show("Status diperbarui"); }}>Refresh</button>
+        </div>
+      </div>
     </div>
   );
 }
