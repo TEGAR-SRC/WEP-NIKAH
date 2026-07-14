@@ -31,6 +31,7 @@ export default function GuestbookSlide() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
+    if (!guest.id) { setError("Silakan buka undangan via link pribadi Anda"); return; }
     setSending(true);
     setError("");
     try {

@@ -375,7 +375,6 @@ function KirimWATab() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [previewGuest, setPreviewGuest] = useState<Guest | null>(null);
-  const [sending, setSending] = useState(false);
 
   const fetchData = async () => {
     const [gRes, tRes] = await Promise.all([fetch("/api/guests"), fetch("/api/templates")]);
@@ -400,21 +399,14 @@ function KirimWATab() {
     return template.body.replace(/\{title\}/g, g.title).replace(/\{name\}/g, g.name).replace(/\{slug\}/g, g.slug);
   };
 
-  const send = async () => {
-    const selected = guests.filter((g) => selectedIds.has(g.id));
-    if (!selected.length) return alert("Pilih minimal satu tamu");
-    if (!template) return alert("Template tidak ditemukan");
-    setSending(true);
-    for (const g of selected) {
-      const message = fillMessage(g);
-      await fetch("/api/send-wa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestId: g.id, phone: g.phone, message }),
-      });
-    }
-    setSending(false);
-    alert(`Tautan WA untuk ${selected.length} tamu telah dibuat. Buka log untuk melihat.`);
+  const waUrl = (g: Guest) => {
+    const msg = encodeURIComponent(fillMessage(g));
+    return `https://wa.me/${g.phone}?text=${msg}`;
+  };
+
+  const bulkWaUrls = () => {
+    const selected = guests.filter((g) => selectedIds.has(g.id) && g.phone);
+    return selected.map((g) => waUrl(g));
   };
 
   return (
@@ -432,6 +424,7 @@ function KirimWATab() {
             </th>
             <th style={s.th}>Nama</th>
             <th style={s.th}>Phone</th>
+            <th style={s.th}>WA</th>
             <th style={s.th}>Preview</th>
           </tr>
         </thead>
@@ -444,6 +437,13 @@ function KirimWATab() {
               <td style={s.td}>{g.name}</td>
               <td style={s.td}>{g.phone ?? "—"}</td>
               <td style={s.td}>
+                {g.phone ? (
+                  <a href={waUrl(g)} target="_blank" rel="noopener noreferrer" style={s.btn("var(--inv-accent)")}>
+                    Buka WA
+                  </a>
+                ) : "—"}
+              </td>
+              <td style={s.td}>
                 <button style={s.btn()} onClick={() => setPreviewGuest(previewGuest?.id === g.id ? null : g)}>
                   {previewGuest?.id === g.id ? "Tutup" : "Preview"}
                 </button>
@@ -451,7 +451,7 @@ function KirimWATab() {
             </tr>
           ))}
           {guests.length === 0 && (
-            <tr><td style={s.td} colSpan={4}>Belum ada tamu.</td></tr>
+            <tr><td style={s.td} colSpan={5}>Belum ada tamu.</td></tr>
           )}
         </tbody>
       </table>
@@ -461,9 +461,21 @@ function KirimWATab() {
           {fillMessage(previewGuest)}
         </div>
       )}
-      <div style={{ marginTop: 16 }}>
-        <button style={s.btn()} onClick={send} disabled={sending}>
-          {sending ? "Mengirim..." : `Kirim WA ke ${selectedIds.size} tamu`}
+      <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+        <button style={s.btn()} onClick={() => {
+          const urls = bulkWaUrls();
+          if (!urls.length) return alert("Pilih tamu dengan nomor WA");
+          urls.forEach((u) => window.open(u, "_blank"));
+        }}>
+          Buka WA untuk {selectedIds.size} tamu
+        </button>
+        <button style={s.btn("var(--inv-base)")} onClick={() => {
+          const urls = bulkWaUrls();
+          if (!urls.length) return alert("Pilih tamu dengan nomor WA");
+          navigator.clipboard.writeText(urls.join("\n"));
+          alert("Link WA tersalin!");
+        }}>
+          Salin Link WA
         </button>
       </div>
     </div>
