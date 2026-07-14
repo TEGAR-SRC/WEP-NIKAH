@@ -348,6 +348,11 @@ function TemplateTab() {
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <button style={s.btn()} onClick={save}>Simpan</button>
+        <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+          if (!selected) return;
+          await fetch(`/api/templates/${selected.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "undangan" }) });
+          fetchTemplates(); show("Template ditetapkan sebagai default");
+        }}>Terapkan ✅</button>
         <button style={s.btn("var(--inv-base)")} onClick={() => { setShowCreateUcapan(!showCreateUcapan); setCreateName(""); }}>{showCreateUcapan ? "Batal" : "Simpan Baru"}</button>
       </div>
       {showCreateUcapan && (
