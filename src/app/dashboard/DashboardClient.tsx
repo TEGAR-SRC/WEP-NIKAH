@@ -505,28 +505,77 @@ function TemplateTab() {
 function TmplSelector({ prefix, label, desc }: { prefix: string; label: string; desc: string }) {
   const [list, setList] = useState<any[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [tmplName, setTmplName] = useState("");
+  const [tmplBody, setTmplBody] = useState("");
+  const [showNew, setShowNew] = useState(false);
+  const [newName, setNewName] = useState("");
   const { show } = useContext(NotifCtx);
-  useEffect(() => {
-    fetch("/api/templates").then(r => r.json()).then((all: any[]) => {
-      const f = all.filter((t: any) => t.name.startsWith(prefix));
-      setList(f);
-      const a = f.find((t: any) => t.name === `${prefix} (active)`) || f[0];
-      if (a) setActiveId(a.id);
-    }).catch(() => {});
-  }, [prefix]);
+  const { ask } = useContext(ConfirmCtx);
+
+  const load = async () => {
+    const r = await fetch("/api/templates"); if (!r.ok) return;
+    const all: any[] = await r.json();
+    const f = all.filter((t: any) => t.name.startsWith(prefix));
+    setList(f);
+    const a = f.find((t: any) => t.name === `${prefix} (active)`) || f[0];
+    if (a) { setActiveId(a.id); setTmplName(a.name); setTmplBody(a.body); }
+  };
+  useEffect(() => { load(); }, [prefix]);
+
+  const save = async () => {
+    if (!activeId || !tmplBody.trim()) return;
+    await fetch(`/api/templates/${activeId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: tmplName, body: tmplBody }) });
+    show("Tersimpan"); load();
+  };
+
+  const createNew = async () => {
+    if (!newName.trim() || !tmplBody.trim()) { show("Isi nama dan body", "err"); return; }
+    const r = await fetch("/api/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newName.trim(), body: tmplBody.trim() }) });
+    if (r.ok) { show("Template dibuat"); setShowNew(false); load(); }
+    else { const e = await r.json(); show(e.error || "Gagal", "err"); }
+  };
+
+  const del = async () => {
+    if (!activeId || !(await ask("Hapus template ini?"))) return;
+    await fetch(`/api/templates/${activeId}`, { method: "DELETE" });
+    load(); show("Dihapus");
+  };
+
   return <div style={{ marginTop: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
     <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: "var(--inv-accent)" }}>{label}</div>
-    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-      <select value={activeId || ""} onChange={(e) => setActiveId(e.target.value)} style={{ ...s.select, maxWidth: 300 }}>
-        {list.map((t: any) => (<option key={t.id} value={t.id}>{t.name}</option>))}
-      </select>
-      <button style={s.btn("var(--inv-accent)")} onClick={async () => {
-        if (!activeId) return;
-        await fetch(`/api/templates/${activeId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${prefix} (active)` }) });
-        show(`Template ${label} ditetapkan`);
-      }}>Terapkan ✅</button>
+    <div style={{ marginBottom: 12 }}>
+      <label style={s.label}>Pilih Template</label>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <select value={activeId || ""} onChange={(e) => {
+          const t = list.find((x: any) => x.id === e.target.value);
+          if (t) { setActiveId(t.id); setTmplName(t.name); setTmplBody(t.body); }
+        }} style={{ ...s.select, maxWidth: 300 }}>
+          {list.map((t: any) => (<option key={t.id} value={t.id}>{t.name}</option>))}
+        </select>
+        <button style={s.btn("var(--inv-accent)")} onClick={async () => {
+          if (!activeId) return;
+          await fetch(`/api/templates/${activeId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${prefix} (active)` }) });
+          show(`Template ${label} ditetapkan`); load();
+        }}>Terapkan ✅</button>
+        <button style={s.btn("#b33")} onClick={del}>Hapus</button>
+      </div>
     </div>
-    <div style={{ fontSize: 11, marginTop: 4, opacity: 0.6 }}>{desc}</div>
+    <div style={{ marginBottom: 12 }}><label style={s.label}>Nama Template</label><input style={s.input} value={tmplName} onChange={(e) => setTmplName(e.target.value)} /></div>
+    <div style={{ marginBottom: 12 }}>
+      <label style={s.label}>Body</label><textarea style={s.textarea} value={tmplBody} onChange={(e) => setTmplBody(e.target.value)} />
+      <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{confirm}`}, {`{BASE_URL}`}</div>
+    </div>
+    <div style={{ display: "flex", gap: 8 }}>
+      <button style={s.btn()} onClick={save}>Simpan</button>
+      <button style={s.btn("var(--inv-base)")} onClick={() => setShowNew(!showNew)}>{showNew ? "Batal" : "Simpan Baru"}</button>
+    </div>
+    {showNew && (
+      <div style={{ marginTop: 12, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+        <div style={{ marginBottom: 8 }}><label style={s.label}>Nama Template Baru</label><input style={s.input} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={`${prefix} (custom)`} /></div>
+        <button style={s.btn()} onClick={createNew}>Buat Template</button>
+      </div>
+    )}
+    <div style={{ fontSize: 11, marginTop: 6, opacity: 0.6 }}>{desc}</div>
   </div>;
 }
 
