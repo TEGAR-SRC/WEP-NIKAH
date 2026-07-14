@@ -347,8 +347,8 @@ function TemplateTab() {
         <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}, {`{slug}`}, {`{BASE_URL}`}</div>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <button style={s.btn()} onClick={save}>Update</button>
-        <button style={s.btn("var(--inv-base)")} onClick={() => { setShowCreateUcapan(!showCreateUcapan); setCreateName(""); }}>{showCreateUcapan ? "Batal" : "Simpan Sebagai Baru"}</button>
+        <button style={s.btn()} onClick={save}>Simpan</button>
+        <button style={s.btn("var(--inv-base)")} onClick={() => { setShowCreateUcapan(!showCreateUcapan); setCreateName(""); }}>{showCreateUcapan ? "Batal" : "Simpan Baru"}</button>
       </div>
       {showCreateUcapan && (
         <div style={{ marginTop: 12, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
@@ -393,7 +393,7 @@ function TemplateTab() {
           <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button style={s.btn("var(--inv-accent)")} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Update</button>
+          <button style={s.btn("var(--inv-accent)")} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Simpan</button>
           <button style={s.btn("var(--inv-base)")} onClick={() => createTmpl(newName, "Terima Kasih", newBody)}>Simpan Baru</button>
         </div>
         <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
