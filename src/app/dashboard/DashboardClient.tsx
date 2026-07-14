@@ -196,7 +196,7 @@ function GuestsTab() {
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 8 }}>
           <span style={{ fontSize: 12, fontWeight: 600 }}>Import Excel:</span>
           <input type="file" accept=".xlsx,.xls,.csv" style={{ fontSize: 12 }} onChange={(e) => { const f = e.target.files?.[0]; if (f) importExcel(f); }} />
-          <a href="/template-tamu.xlsx" download style={{ fontSize: 12, color: "var(--inv-accent)", cursor: "pointer" }}>📥 Download Template</a>
+          <a href="/template-tamu.xlsx" style={{ fontSize: 12, color: "var(--inv-accent)", textDecoration: "none", fontWeight: 600 }}>📥 Download Template</a>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ flex: "1 0 140px" }}><label style={s.label}>Nama</label><input style={s.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama tamu" /></div>
