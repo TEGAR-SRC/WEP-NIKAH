@@ -134,16 +134,21 @@ function GuestsTab() {
   const totalPages = Math.max(1, Math.ceil(guests.length / rowsPerPage));
   const paged = guests.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
+  const pagBtn = (disabled: boolean, onClick: () => void, label: string, active?: boolean) => (
+    <button disabled={disabled} onClick={onClick}
+      style={{ padding: "3px 8px", border: "1px solid var(--inv-border)", borderRadius: 4, background: active ? "var(--inv-accent)" : "var(--inv-bg)", color: disabled ? "var(--inv-border)" : active ? "var(--btn-color)" : "var(--inv-base)", cursor: disabled ? "default" : "pointer", fontSize: 12, fontWeight: active ? 700 : 400 }}>{label}</button>
+  );
+
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <div style={s.formRow}>
-          <div style={s.formGroup}><label style={s.label}>Nama</label><input style={s.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama tamu" /></div>
-          <div style={s.formGroup}><label style={s.label}>Title</label><select style={s.select} value={title} onChange={(e) => setTitle(e.target.value)}>{TITLES.map((t) => <option key={t} value={t}>{t}</option>)}</select></div>
-          <div style={s.formGroup}><label style={s.label}>Phone</label><input style={s.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xxx" /></div>
+      <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 0 140px" }}><label style={s.label}>Nama</label><input style={s.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama tamu" /></div>
+          <div style={{ flex: "0 0 110px" }}><label style={s.label}>Title</label><select style={s.select} value={title} onChange={(e) => setTitle(e.target.value)}>{TITLES.map((t) => <option key={t} value={t}>{t}</option>)}</select></div>
+          <div style={{ flex: "1 0 120px" }}><label style={s.label}>Phone</label><input style={s.input} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xxx" /></div>
           <div><button style={s.btn()} onClick={addGuest}>Tambah</button></div>
         </div>
-        <div style={{ fontSize: 11, marginTop: 4, color: "var(--inv-accent)" }}>Slug: {name ? slugify(name) : "(auto dari nama)"}</div>
+        <div style={{ fontSize: 11, marginTop: 4, color: "var(--inv-accent)" }}>Slug: {name ? slugify(name) : "(auto)"}</div>
       </div>
       <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}><table style={s.table}>
         <thead><tr><th style={s.th}>Nama</th><th style={s.th}>Title</th><th style={s.th}>Slug</th><th style={s.th}>Phone</th><th style={s.th}>Status</th><th style={s.th}>Aksi</th></tr></thead>
@@ -160,22 +165,17 @@ function GuestsTab() {
           {guests.length === 0 && <tr><td style={s.td} colSpan={6}>Belum ada tamu.</td></tr>}
         </tbody>
       </table></div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
+      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
-          <span>Baris per halaman:</span>
+          <span>Rows:</span>
           <select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} style={{ padding: "3px 6px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 13 }}>
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
+            {[5, 10, 25, 50].map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13 }}>
-          <button disabled={page === 0} onClick={() => setPage(page - 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page === 0 ? "var(--inv-border)" : "var(--inv-base)", cursor: page === 0 ? "default" : "pointer", fontSize: 13 }}>Sebelumnya</button>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button key={i} onClick={() => setPage(i)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: i === page ? "var(--inv-accent)" : "var(--inv-bg)", color: i === page ? "var(--btn-color)" : "var(--inv-base)", cursor: "pointer", fontSize: 13, fontWeight: i === page ? 700 : 400, minWidth: 32 }}>{i + 1}</button>
-          ))}
-          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} style={{ padding: "4px 10px", border: "1px solid var(--inv-border)", borderRadius: 4, background: "var(--inv-bg)", color: page >= totalPages - 1 ? "var(--inv-border)" : "var(--inv-base)", cursor: page >= totalPages - 1 ? "default" : "pointer", fontSize: 13 }}>Selanjutnya</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          {pagBtn(page === 0, () => setPage(page - 1), "Sebelumnya")}
+          {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => <span key={i}>{pagBtn(false, () => setPage(i), String(i + 1), i === page)}</span>)}
+          {pagBtn(page >= totalPages - 1, () => setPage(page + 1), "Selanjutnya")}
         </div>
       </div>
     </div>
