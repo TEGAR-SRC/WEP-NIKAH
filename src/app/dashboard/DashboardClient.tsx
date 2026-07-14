@@ -278,7 +278,9 @@ function TemplateTab() {
   const [newSubject, setNewSubject] = useState("");
   const [newBody, setNewBody] = useState("");
   const [showCreateUcapan, setShowCreateUcapan] = useState(false);
+  const [showCreateThanks, setShowCreateThanks] = useState(false);
   const [createName, setCreateName] = useState("");
+  const [createNameThanks, setCreateNameThanks] = useState("");
   const { show } = useContext(NotifCtx);
 
   const fetchTemplates = async () => {
@@ -379,28 +381,35 @@ function TemplateTab() {
               {thanksTemplates.map((t: any) => (
                 <option key={t.id} value={t.id}>{t.name}{t.name === "terima kasih (active)" ? " ✅" : ""}</option>
               ))}
+              {thanksTemplates.length === 0 && <option value="">Tidak ada template</option>}
             </select>
             <button style={s.btn("var(--inv-accent)")} onClick={async () => {
               if (!thanksActiveId) return;
               await fetch("/api/settings/thanks-template", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ templateId: thanksActiveId }) });
-              show("Template terima kasih diperbarui"); fetchThanks();
+              show("Template ditetapkan sebagai default"); fetchThanks();
             }}>Terapkan ✅</button>
             {thanksPreview && <button style={s.btn("#b33")} onClick={() => deleteTmpl(thanksActiveId!)}>Hapus</button>}
           </div>
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label style={s.label}>Nama Template</label>
-          <input style={s.input} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="terima kasih (custom)" />
-        </div>
+        <div style={{ marginBottom: 12 }}><label style={s.label}>Nama Template</label><input style={s.input} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="terima kasih (custom)" /></div>
         <div style={{ marginBottom: 12 }}>
           <label style={s.label}>Body</label>
           <textarea style={s.textarea} value={newBody} onChange={(e) => setNewBody(e.target.value)} />
           <div style={s.hint}>Placeholder: {`{title}`}, {`{name}`}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button style={s.btn("var(--inv-accent)")} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Simpan</button>
-          <button style={s.btn("var(--inv-base)")} onClick={() => createTmpl(newName, "Terima Kasih", newBody)}>Simpan Baru</button>
+          <button style={s.btn()} onClick={() => updateTmpl(thanksActiveId!, newName, "Terima Kasih", newBody)}>Simpan</button>
+          <button style={s.btn("var(--inv-base)")} onClick={() => setShowCreateThanks(!showCreateThanks)}>{showCreateThanks ? "Batal" : "Simpan Baru"}</button>
         </div>
+        {showCreateThanks && (
+          <div style={{ marginTop: 12, padding: 12, borderRadius: 8, border: "1px solid var(--inv-border)" }}>
+            <div style={{ marginBottom: 8 }}>
+              <label style={s.label}>Nama Template Baru</label>
+              <input style={s.input} value={createNameThanks} onChange={(e) => setCreateNameThanks(e.target.value)} placeholder="terima kasih (custom)" />
+            </div>
+            <button style={s.btn()} onClick={async () => { await createTmpl(createNameThanks, "Terima Kasih", newBody); setShowCreateThanks(false); }}>Buat Template</button>
+          </div>
+        )}
         <div style={{ fontSize: 11, marginTop: 10, opacity: 0.6, lineHeight: 1.5 }}>
           Template ini dikirim otomatis ke WA tamu saat mereka membuka undangan. Gunakan {`{title}`} dan {`{name}`}.
         </div>
