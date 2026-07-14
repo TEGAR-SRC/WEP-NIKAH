@@ -119,6 +119,8 @@ export default function GuestbookSlide() {
           width: "100%",
           maxHeight: "calc(100vh - 80px)",
           overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          touchAction: "pan-y",
           background: "rgba(228,221,215,0.6)",
           backdropFilter: "blur(4px)",
           borderRadius: 24,

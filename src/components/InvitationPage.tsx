@@ -315,7 +315,7 @@ function Home() {
                   height: "100vh",
                   width: "100%",
                   overflow: "hidden",
-                  touchAction: "none",
+                  touchAction: "pan-y",
                   userSelect: "none",
                   overscrollBehavior: "none",
                 }}
