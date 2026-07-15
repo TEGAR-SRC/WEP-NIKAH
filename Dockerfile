@@ -27,7 +27,8 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY scripts/start.sh ./start.sh
 RUN chmod +x start.sh
 
-RUN npm install -g tsx && \
+RUN npm ci --omit=dev && \
+    npm install -g tsx && \
     npx prisma generate && \
     mkdir -p wa_session && \
     chown -R nextjs:nodejs wa_session /app
