@@ -27,14 +27,28 @@ export async function POST(req: Request) {
     }
   }
 
-  let admin = await prisma.admin.findUnique({ where: { email } });
+  let admin;
+  try {
+    admin = await Promise.race([
+      prisma.admin.findUnique({ where: { email } }),
+      new Promise<null>((_, reject) => setTimeout(() => reject(new Error("Database timeout")), 5000))
+    ]);
+  } catch (dbErr) {
+    return NextResponse.json({ error: "Gagal terhubung ke database. Coba lagi nanti." }, { status: 500 });
+  }
+
   if (!admin) {
     // Auto-seed: create default admin if no admin exists
-    const count = await prisma.admin.count();
-    if (count === 0 && email === "admin@nikah.com") {
-      await prisma.admin.create({ data: { email: "admin@nikah.com", password: await argonHash("admin123", { type: 2 }) } });
-      admin = await prisma.admin.findUnique({ where: { email } });
-    }
+    try {
+      const count = await Promise.race([
+        prisma.admin.count(),
+        new Promise<number>((_, reject) => setTimeout(() => reject(new Error("Database timeout")), 5000))
+      ]);
+      if (count === 0 && email === "admin@nikah.com") {
+        await prisma.admin.create({ data: { email: "admin@nikah.com", password: await argonHash("admin123", { type: 2 }) } });
+        admin = await prisma.admin.findUnique({ where: { email } });
+      }
+    } catch {}
   }
   if (!admin) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });

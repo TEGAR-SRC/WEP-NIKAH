@@ -1,46 +1,46 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const hasCaptcha = mounted && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError("");
     if (!email.trim() || !password.trim()) { setError("Isi email dan password"); return; }
-    if (hasCaptcha && !token) { setError("Verifikasi captcha dulu"); return; }
-    
+
     setLoading(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password, turnstileToken: token }),
+        body: JSON.stringify({ email: email.trim(), password }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
+
       const data = await res.json();
       if (res.ok && data.ok) {
         router.push("/dashboard");
       } else {
         setError(data.error || "Email atau password salah");
       }
-    } catch (err) {
-      setError("Terjadi kesalahan koneksi");
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        setError("Server timeout — database kemungkinan sedang down.");
+      } else {
+        setError("Terjadi kesalahan koneksi.");
+      }
     } finally {
       setLoading(false);
     }
@@ -76,13 +76,10 @@ export default function LoginPage() {
               background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
             }} />
         </div>
-        {hasCaptcha && <div style={{ marginBottom: 8 }}>
-          <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setToken} />
-        </div>}
         {error && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{error}</div>}
         <button type="submit" disabled={loading} style={{
           width: "100%", padding: "10px", borderRadius: 8, border: "none",
-          background: "var(--inv-accent)", color: "var(--btn-color)", fontSize: 14, 
+          background: "var(--inv-accent)", color: "var(--btn-color)", fontSize: 14,
           cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
         }}>
           {loading ? "Memproses..." : "Masuk"}
