@@ -27,8 +27,8 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY scripts/start.sh ./start.sh
 RUN chmod +x start.sh
 
-RUN npm ci --omit=dev && \
-    npm install -g tsx && \
+RUN npm install -g tsx && \
+    npm install @prisma/adapter-pg @prisma/adapter-libsql @libsql/client argon2 && \
     npx prisma generate && \
     mkdir -p wa_session && \
     chown -R nextjs:nodejs wa_session /app
