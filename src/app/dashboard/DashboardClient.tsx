@@ -187,6 +187,92 @@ function GuestsTab() {
     else { const e = await r.json(); show(e.error || "Gagal import", "err"); }
   };
 
+  const exportCSV = () => {
+    if (guests.length === 0) { show("Tidak ada data tamu untuk diekspor", "err"); return; }
+    const base = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin;
+    let csvContent = "\uFEFF"; // UTF-8 BOM
+    csvContent += "Nama,Title,Slug,Phone,Status,Link Undangan\n";
+    guests.forEach((g) => {
+      const row = [
+        `"${g.name.replace(/"/g, '""')}"`,
+        `"${g.title.replace(/"/g, '""')}"`,
+        `"${g.slug.replace(/"/g, '""')}"`,
+        `"${(g.phone ?? "").replace(/"/g, '""')}"`,
+        `"${g.status.replace(/"/g, '""')}"`,
+        `"${base}/undangan/${g.slug}"`
+      ];
+      csvContent += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `daftar_tamu_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    show("CSV berhasil didownload");
+  };
+
+  const exportTXT = () => {
+    if (guests.length === 0) { show("Tidak ada data tamu untuk diekspor", "err"); return; }
+    const base = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin;
+    let txtContent = "DAFTAR TAMU UNDANGAN\n";
+    txtContent += "====================================\n\n";
+    guests.forEach((g, i) => {
+      txtContent += `${i + 1}. ${g.title} ${g.name}\n`;
+      txtContent += `   No. WA   : ${g.phone ?? "-"}\n`;
+      txtContent += `   Slug     : ${g.slug}\n`;
+      txtContent += `   Status   : ${g.status}\n`;
+      txtContent += `   Link     : ${base}/undangan/${g.slug}\n\n`;
+    });
+
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `daftar_tamu_${new Date().toISOString().slice(0, 10)}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    show("TXT berhasil didownload");
+  };
+
+  const exportExcel = () => {
+    // Generate minimal HTML table format that Excel reads natively as .xls
+    if (guests.length === 0) { show("Tidak ada data tamu untuk diekspor", "err"); return; }
+    const base = process.env.NEXT_PUBLIC_BASE_URL ?? window.location.origin;
+    
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">`;
+    html += `<head><meta charset="utf-8" /><style>td { mso-number-format:"\\@"; }</style></head><body>`;
+    html += `<table border="1">`;
+    html += `<tr><th style="background:#AE7400;color:#FFF">Nama</th><th style="background:#AE7400;color:#FFF">Title</th><th style="background:#AE7400;color:#FFF">Slug</th><th style="background:#AE7400;color:#FFF">Phone</th><th style="background:#AE7400;color:#FFF">Status</th><th style="background:#AE7400;color:#FFF">Link Undangan</th></tr>`;
+    
+    guests.forEach((g) => {
+      html += `<tr>`;
+      html += `<td>${g.name}</td>`;
+      html += `<td>${g.title}</td>`;
+      html += `<td>${g.slug}</td>`;
+      html += `<td>${g.phone ?? ""}</td>`;
+      html += `<td>${g.status}</td>`;
+      html += `<td>${base}/undangan/${g.slug}</td>`;
+      html += `</tr>`;
+    });
+    
+    html += `</table></body></html>`;
+
+    const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `daftar_tamu_${new Date().toISOString().slice(0, 10)}.xls`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    show("Excel (.xls) berhasil didownload");
+  };
+
   const totalPages = Math.max(1, Math.ceil(guests.length / rowsPerPage));
   const paged = guests.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
@@ -198,6 +284,12 @@ function GuestsTab() {
           <span style={{ fontSize: 12, fontWeight: 600 }}>Import Excel:</span>
           <input type="file" accept=".xlsx,.xls,.csv" style={{ fontSize: 12 }} onChange={(e) => { const f = e.target.files?.[0]; if (f) importExcel(f); }} />
           <a href="/template-tamu.xlsx" style={{ fontSize: 12, color: "var(--inv-accent)", textDecoration: "none", fontWeight: 600 }}>📥 Download Template</a>
+        </div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, lineHeight: "28px" }}>Export:</span>
+          <button style={s.btn("var(--inv-accent)")} onClick={exportCSV}>CSV</button>
+          <button style={s.btn("var(--inv-accent)")} onClick={exportExcel}>Excel</button>
+          <button style={s.btn("var(--inv-accent)")} onClick={exportTXT}>TXT</button>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div style={{ flex: "1 0 140px" }}><label style={s.label}>Nama</label><input style={s.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama tamu" /></div>
