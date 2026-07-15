@@ -30,7 +30,7 @@ RUN chmod +x start.sh
 RUN npm install -g tsx && \
     npx prisma generate && \
     mkdir -p wa_session && \
-    chown -R nextjs:nodejs wa_session /app /start.sh
+    chown -R nextjs:nodejs wa_session /app
 
 EXPOSE 3000
 
