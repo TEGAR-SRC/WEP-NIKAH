@@ -2,7 +2,7 @@ import { PrismaClient } from "../src/generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hash } from "argon2";
 
-const url = process.env.DATABASE_URL ?? "postgresql://xxken:xxkenxyz@104.250.122.51:35432/nikah";
+const url = (process.env.DATABASE_URL ?? "postgresql://db-aja:db-aja@149.129.232.30:5448/db-aja") + (process.env.DATABASE_URL?.includes("?") ? "" : "?sslmode=disable");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 
 const guests = [
