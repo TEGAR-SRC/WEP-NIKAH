@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useRef } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
 
@@ -9,22 +9,41 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
-  const hasCaptcha = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const hasCaptcha = mounted && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
     if (!email.trim() || !password.trim()) { setError("Isi email dan password"); return; }
     if (hasCaptcha && !token) { setError("Verifikasi captcha dulu"); return; }
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), password, turnstileToken: token }),
-    });
-    if (res.ok) router.push("/dashboard");
-    else setError("Email atau password salah");
+    
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password, turnstileToken: token }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        router.push("/dashboard");
+      } else {
+        setError(data.error || "Email atau password salah");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan koneksi");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,11 +80,12 @@ export default function LoginPage() {
           <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setToken} />
         </div>}
         {error && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{error}</div>}
-        <button type="submit" style={{
+        <button type="submit" disabled={loading} style={{
           width: "100%", padding: "10px", borderRadius: 8, border: "none",
-          background: "var(--inv-accent)", color: "var(--btn-color)", fontSize: 14, cursor: "pointer",
+          background: "var(--inv-accent)", color: "var(--btn-color)", fontSize: 14, 
+          cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
         }}>
-          Masuk
+          {loading ? "Memproses..." : "Masuk"}
         </button>
       </form>
     </div>
