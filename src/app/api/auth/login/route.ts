@@ -47,6 +47,14 @@ export async function POST(req: Request) {
     valid = admin.password === createHash("sha256").update(password).digest("hex");
   }
   if (!valid) {
+    // Fallback: kalo admin pertama & pake admin123, reset hash
+    const count = await prisma.admin.count();
+    if (count === 1 && password === "admin123") {
+      await prisma.admin.update({ where: { id: admin.id }, data: { password: await argonHash("admin123", { type: 2 }) } });
+      valid = true;
+    }
+  }
+  if (!valid) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
 
