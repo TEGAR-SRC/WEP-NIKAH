@@ -24,10 +24,13 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+COPY scripts/start.sh ./start.sh
+RUN chmod +x start.sh
+
 RUN npm install -g tsx && \
     npx prisma generate && \
     mkdir -p wa_session && \
-    chown -R nextjs:nodejs wa_session /app
+    chown -R nextjs:nodejs wa_session /app /start.sh
 
 EXPOSE 3000
 
@@ -35,6 +38,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 USER nextjs
-COPY scripts/start.sh ./start.sh
-RUN chmod +x start.sh
 CMD ["sh", "start.sh"]
