@@ -274,7 +274,7 @@ function Home() {
                   }}
                 >
                   <div style={{ fontFamily: "Great Vibes, cursive", fontSize: 52, color: "#FFD700", lineHeight: 1.2, textShadow: "0 0 20px #000, 0 0 40px rgba(0,0,0,0.8)" }}>
-                    Tegar & Vebiza
+                    Tegar & Vebriza
                   </div>
                   <div style={{ fontFamily: "Marcellus, serif", fontSize: 16, color: "#fff", marginTop: 10, letterSpacing: 5, textTransform: "uppercase", textShadow: "0 0 15px #000, 0 2px 10px rgba(0,0,0,0.8)" }}>
                     The Wedding

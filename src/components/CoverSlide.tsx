@@ -17,7 +17,7 @@ export default function CoverSlide({ onOpen }: { onOpen: () => void }) {
                 <img src="/api/r2/public/images/satumomen/ilustrasi.webp" alt="Ilustrasi" style={{ width: "100%", height: "auto", objectFit: "cover" }} draggable={false} />
               </div>
               <div className="mt-4" style={{ fontSize: "14.4px" }}>The Wedding of</div>
-              <div className="font-latin color-accent mb-4" style={{ fontSize: "40px" }}>Tegar & Vebiza</div>
+              <div className="font-latin color-accent mb-4" style={{ fontSize: "40px" }}>Tegar & Vebriza</div>
             </div>
             <div className="text-center">
               <div className="mb-2 animate__animated animate__fadeInUp animate__slower" style={{ fontSize: "14.4px" }}>

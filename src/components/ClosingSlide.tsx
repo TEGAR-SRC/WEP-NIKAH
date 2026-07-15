@@ -20,7 +20,7 @@ export default function ClosingSlide() {
           <div className="text-center" style={{ fontSize: 13, color: "var(--inv-base)", opacity: 0.7, letterSpacing: 2, marginTop: 16 }}>
             Hormat Kami Yang Mengundang
           </div>
-          <div className="font-latin color-accent text-center" style={{ fontSize: 32, marginTop: 8 }}>Tegar &amp; Vebiza</div>
+          <div className="font-latin color-accent text-center" style={{ fontSize: 32, marginTop: 8 }}>Tegar &amp; Vebriza</div>
           <div style={{ textAlign: "center", marginTop: 20, color: "#000" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontWeight: 700, fontSize: 12 }}>
               <span>Dibuat oleh</span>

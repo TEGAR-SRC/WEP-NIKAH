@@ -11,13 +11,13 @@ export default function LoginPage() {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
-  const isDev = typeof window !== "undefined" && window.location.hostname === "localhost";
+  const hasCaptcha = typeof window !== "undefined" && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !password.trim()) { setError("Isi email dan password"); return; }
-    if (!isDev && !token) { setError("Verifikasi captcha dulu"); return; }
+    if (hasCaptcha && !token) { setError("Verifikasi captcha dulu"); return; }
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ export default function LoginPage() {
               background: "var(--inv-bg)", color: "var(--inv-base)", fontSize: 14, boxSizing: "border-box",
             }} />
         </div>
-        {!isDev && <div style={{ marginBottom: 8 }}>
+        {hasCaptcha && <div style={{ marginBottom: 8 }}>
           <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={setToken} />
         </div>}
         {error && <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>{error}</div>}

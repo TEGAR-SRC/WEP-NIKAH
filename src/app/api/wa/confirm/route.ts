@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     // Follow-up with interactive buttons
     const desc = `Halo ${guest.title} ${guest.name} 👋\n\nTerima kasih sudah mengirimkan ucapan untuk pernikahan kami 🙏\n\nMohon konfirmasi kehadiran Anda:`;
     try {
-      await sendButtonMessage(guest.phone, desc, "Tegar & Vebiza 💕", [
+      await sendButtonMessage(guest.phone, desc, "Tegar & Vebriza 💕", [
         { label: "✅ Hadir", id: "hadir" },
         { label: "❌ Tidak Hadir", id: "tidak_hadir" },
         { label: "🤔 Ragu", id: "ragu" },

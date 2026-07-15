@@ -26,7 +26,7 @@ const comments = [
   { message: "Doa terbaik untuk kalian berdua. Semoga jadi keluarga sakinah.", confirm: "hadir", guestIdx: 6 },
   { message: "Mohon maaf tidak bisa hadir, tapi doa selalu menyertai.", confirm: "tidak hadir", guestIdx: 7 },
   { message: "Selamat berbahagia! Semoga berkah selalu.", confirm: "hadir", guestIdx: 8 },
-  { message: "Amin ya Rabbal alamin. Barakallah untuk Tegar & Vebiza!", confirm: "hadir", guestIdx: 0 },
+  { message: "Amin ya Rabbal alamin. Barakallah untuk Tegar & Vebriza!", confirm: "hadir", guestIdx: 0 },
   { message: "Semoga menjadi keluarga yang penuh cinta dan kasih sayang.", confirm: "ragu", guestIdx: 9 },
   { message: "Selamat dan sukses untuk acaranya! Kami turut berbahagia.", confirm: "hadir", guestIdx: 1 },
   { message: "Barakallahulakuma! Semoga menjadi keluarga yang diridhoi Allah.", confirm: "hadir", guestIdx: 2 },
@@ -35,7 +35,7 @@ const comments = [
   { message: "Alhamdulillah, turut berbahagia. Semoga jadi keluarga sakinah.", confirm: "hadir", guestIdx: 6 },
   { message: "Barakallah! Selamat menempuh hidup baru.", confirm: "hadir", guestIdx: 8 },
   { message: "Semoga menjadi keluarga yang samawa! Aamiin.", confirm: "hadir", guestIdx: 4 },
-  { message: "Turut berbahagia untuk Tegar & Vebiza. Semoga langgeng!", confirm: "hadir", guestIdx: 7 },
+  { message: "Turut berbahagia untuk Tegar & Vebriza. Semoga langgeng!", confirm: "hadir", guestIdx: 7 },
   { message: "Semoga Allah memberkahi pernikahan kalian.", confirm: "ragu", guestIdx: 9 },
   { message: "Selamat ya! Doa terbaik dari kami di Bandung.", confirm: "tidak hadir", guestIdx: 0 },
   { message: "Barakallah! Semoga menjadi keluarga yang bahagia dan penuh berkah.", confirm: "hadir", guestIdx: 1 },
@@ -44,14 +44,14 @@ const comments = [
 const templates = [
   {
     name: "undangan (formal)",
-    subject: "Undangan Pernikahan Tegar & Vebiza",
+    subject: "Undangan Pernikahan Tegar & Vebriza",
     body: `Yth. {title} {name}
 
 Assalamualaikum Warahmatullahi Wabarakatuh
 
 Dengan memohon Rahmat dan Ridho Allah SWT, melalui pesan ini kami mengundang {title} {name} untuk menghadiri acara pernikahan kami:
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara
+Tegar Arrahman & Vebriza Juinda Putri Zahara
 
 Berikut link undangan kami:
 {BASE_URL}/undangan/{slug}
@@ -62,16 +62,16 @@ Terima kasih banyak atas perhatiannya.
 Wassalamualaikum Warahmatullahi Wabarakatuh
 
 Hormat kami,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (singkat)",
-    subject: "Undangan Nikah Tegar & Vebiza",
+    subject: "Undangan Nikah Tegar & Vebriza",
     body: `Assalamualaikum {title} {name}
 
 Kami mengundang {title} {name} untuk hadir di acara pernikahan kami:
 
-Tegar Arrahman ♥ Vebiza Juinda Putri Zahara
+Tegar Arrahman ♥ Vebriza Juinda Putri Zahara
 
 🗓 20 Juli 2026
 📍 KUA Batu Aji, Batam
@@ -83,17 +83,17 @@ Mohon doa & restunya 🙏
 Terima kasih
 Wassalamualaikum
 
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (santai)",
-    subject: "Gaiss.. Tegar & Vebiza nikah!",
+    subject: "Gaiss.. Tegar & Vebriza nikah!",
     body: `Halo {title} {name}!
 
 Kabar bahagia 🎉
 Kami akan melangsungkan pernikahan dan sangat senang jika {title} {name} bisa hadir!
 
-Tegar Arrahman 💍 Vebiza Juinda Putri Zahara
+Tegar Arrahman 💍 Vebriza Juinda Putri Zahara
 
 📅 20 Juli 2026
 📍 KUA Batu Aji, Batam
@@ -104,18 +104,18 @@ Yuk klik link ini buat liat detailnya:
 Jangan lupa konfirmasi kehadiran ya! 😊
 
 Makasih banyak!
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (resmi singkat)",
-    subject: "Undangan Resmi Tegar & Vebiza",
+    subject: "Undangan Resmi Tegar & Vebriza",
     body: `Kepada {title} {name}
 
 Assalamualaikum
 
 Dengan ini kami mengundang {title} {name} pada acara pernikahan:
 
-Tunangan : Tegar Arrahman & Vebiza Juinda Putri Zahara
+Tunangan : Tegar Arrahman & Vebriza Juinda Putri Zahara
 Waktu : 20 Juli 2026
 
 Link undangan: {BASE_URL}/undangan/{slug}
@@ -125,11 +125,11 @@ Kehadiran {title} {name} sangat berarti bagi kami.
 Wassalamualaikum
 
 Hormat kami,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (dengan doa)",
-    subject: "Doa & Undangan Tegar & Vebiza",
+    subject: "Doa & Undangan Tegar & Vebriza",
     body: `Yth. {title} {name}
 
 Assalamualaikum
@@ -138,7 +138,7 @@ Assalamualaikum
 
 Dengan izin Allah, kami akan menikah:
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara
+Tegar Arrahman & Vebriza Juinda Putri Zahara
 20 Juli 2026
 
 Link: {BASE_URL}/undangan/{slug}
@@ -147,14 +147,14 @@ Mohon doa restunya.
 
 Wassalamualaikum
 
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (simple)",
     subject: "Wedding Invitation",
     body: `Hi {title} {name} 🤝
 
-Tegar & Vebiza getting married!
+Tegar & Vebriza getting married!
 
 20 July 2026
 KUA Batu Aji, Batam
@@ -164,7 +164,7 @@ Full invitation: {BASE_URL}/undangan/{slug}
 Please come and give us your blessing ❤️
 
 Best regards,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (WA singkat)",
@@ -173,18 +173,18 @@ Tegar & Vebiza`,
 
 Besok kita nikah! 🎉
 
-Tegar ♥ Vebiza
+Tegar ♥ Vebriza
 20 Juli 2026
 
 Link undangan: {BASE_URL}/undangan/{slug}
 
 Doain lancar ya 🙏
 
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "undangan (lengkap)",
-    subject: "Undangan Tegar & Vebiza — Lengkap",
+    subject: "Undangan Tegar & Vebriza — Lengkap",
     body: `Yth. {title} {name} di tempat
 
 Assalamualaikum Warahmatullahi Wabarakatuh
@@ -209,18 +209,18 @@ Merupakan suatu kebahagiaan bagi kami apabila {title} {name} berkenan hadir. Ata
 Wassalamualaikum Warahmatullahi Wabarakatuh
 
 Hormat kami,
-Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+Tegar Arrahman & Vebriza Juinda Putri Zahara`,
   },
   {
     name: "undangan (undangan khusus)",
-    subject: "Undangan Khusus Tegar & Vebiza",
+    subject: "Undangan Khusus Tegar & Vebriza",
     body: `Khusus untuk: {title} {name}
 
 Assalamualaikum
 
 Kami dengan bangga mengundang {title} {name} secara khusus untuk hadir memberikan doa restu pada hari pernikahan kami.
 
-Tegar & Vebiza
+Tegar & Vebriza
 20 Juli 2026 | Batam
 
 Link pribadi: {BASE_URL}/undangan/{slug}
@@ -229,14 +229,14 @@ Kami tunggu kehadirannya 🙏
 
 Wassalamualaikum
 
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "terima kasih (default)",
     subject: "Terima Kasih",
     body: `Terima kasih {title} {name} sudah membuka undangan pernikahan kami 🙏
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara
+Tegar Arrahman & Vebriza Juinda Putri Zahara
 📍 KUA Batu Aji, Batam
 📅 20 Juli 2026
 
@@ -257,7 +257,7 @@ Jangan lupa konfirmasi kehadiran ya 😊`,
 Terima kasih telah meluangkan waktu untuk membuka undangan pernikahan kami. Kehadiran dan doa restu {title} {name} sangat berarti bagi kami.
 
 Wassalamualaikum Warahmatullahi Wabarakatuh
-Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+Tegar Arrahman & Vebriza Juinda Putri Zahara`,
   },
   {
     name: "terima kasih (santai)",
@@ -266,7 +266,7 @@ Tegar Arrahman & Vebiza Juinda Putri Zahara`,
 
 Makasih banget udah buka undangan kami ❤️
 
-Tegar ♥ Vebiza
+Tegar ♥ Vebriza
 20 Juli 2026 | Batam
 
 Konfirmasi hadir ya, ditunggu! 🎉`,
@@ -285,7 +285,7 @@ Kami tunggu kehadirannya di:
 📅 20 Juli 2026
 
 Salam,
-Tegar & Vebiza 💕`,
+Tegar & Vebriza 💕`,
   },
   {
     name: "konfirmasi (singkat)",
@@ -313,7 +313,7 @@ Kami tunggu kehadirannya.
 Wassalamualaikum Wr. Wb.
 
 Hormat kami,
-Tegar Arrahman & Vebiza Juinda Putri Zahara`,
+Tegar Arrahman & Vebriza Juinda Putri Zahara`,
   },
   {
     name: "konfirmasi (santai)",
@@ -338,7 +338,7 @@ Makasih udah konfirmasi! 🙏
   },
   {
     name: "konfirmasi (lengkap)",
-    subject: "Konfirmasi Kehadiran - Tegar & Vebiza",
+    subject: "Konfirmasi Kehadiran - Tegar & Vebriza",
     body: `Assalamualaikum {title} {name}
 
 Terima kasih telah mengkonfirmasi kehadiran Anda pada acara pernikahan kami.
@@ -352,13 +352,13 @@ Atas Nama: {title} {name}
 ━━━━━━━━━━━━
 DETAIL ACARA
 ━━━━━━━━━━━━
-👰🏻🤵🏻 Tegar Arrahman & Vebiza Juinda Putri Zahara
+👰🏻🤵🏻 Tegar Arrahman & Vebriza Juinda Putri Zahara
 📅 Senin, 20 Juli 2026
 ⏰ 10.00 WIB (Akad) / 11.00 WIB (Syukuran)
 📍 KUA Batu Aji & Kediaman, Batam
 
 Wassalamualaikum Wr. Wb.
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "konfirmasi (ucapan doa)",
@@ -373,7 +373,7 @@ Konfirmasi: {confirm}
 20 Juli 2026 | Batam
 
 Wassalamualaikum
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "konfirmasi (terima kasih)",
@@ -387,7 +387,7 @@ Sampai jumpa di hari bahagia! 🎉
 📅 20 Juli 2026
 
 Salam,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "konfirmasi (English)",
@@ -403,7 +403,7 @@ Thank you for confirming your attendance 🙏
 We look forward to seeing you!
 
 Best regards,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   {
     name: "konfirmasi (undangan khusus)",
@@ -418,7 +418,7 @@ Mohon doa restunya untuk kelancaran acara kami.
 Terima kasih banyak atas perhatiannya.
 
 Wassalamualaikum
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
   // === FOLLOW-UP (reminder konfirmasi) ===
   { name: "follow-up (default)", subject: "Konfirmasi Kehadiran", body: `Yth. {title} {name}
@@ -430,7 +430,7 @@ Kami ingin memastikan kehadiran {title} {name}. Mohon konfirmasi melalui link un
 {BASE_URL}/undangan/{slug}
 
 Terima kasih 🙏
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "follow-up (singkat)", subject: "Konfirmasi?", body: `Halo {title} {name}, makasih udah ngucapin! 😊
 
 Kami masih tunggu konfirmasi kehadiran kamu nih.
@@ -448,7 +448,7 @@ Silakan buka link undangan untuk konfirmasi:
 Atas perhatiannya, terima kasih.
 Wassalamualaikum
 
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "follow-up (santai)", subject: "Eh, konfirm dong!", body: `Hai {title} {name}!
 
 Makasih ya udah ngirim ucapan buat kami 🎉
@@ -476,7 +476,7 @@ Terima kasih banyak.
 Wassalamualaikum Wr. Wb.
 
 Hormat kami,
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "follow-up (doa)", subject: "Doa & Konfirmasi", body: `Assalamualaikum {title} {name}
 
 Terima kasih atas doa restu yang telah diberikan. Kami mohon konfirmasi kehadiran {title} {name} untuk kelancaran acara kami.
@@ -485,7 +485,7 @@ Silakan buka:
 {BASE_URL}/undangan/{slug}
 
 Wassalamualaikum
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "follow-up (English)", subject: "Confirmation Reminder", body: `Dear {title} {name}
 
 Thank you for your wishes! We're still waiting for your attendance confirmation.
@@ -513,7 +513,7 @@ Kami tunggu kehadirannya di:
 📅 20 Juli 2026
 
 Sampai jumpa! 🥳
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "hadir (resmi)", subject: "Konfirmasi Hadir", body: `Yth. {title} {name}
 
 Terima kasih atas konfirmasi kehadiran Anda. Kami sangat senang Anda dapat hadir.
@@ -525,7 +525,7 @@ Terima kasih atas konfirmasi kehadiran Anda. Kami sangat senang Anda dapat hadir
 Sampai bertemu di hari bahagia kami.
 Wassalamualaikum
 
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "hadir (santai)", subject: "Asik! Datang! 🎉", body: `Wah, {title} {name} datang! 🎉🎉🎉
 
 Makasih banget udah konfirmasi. Kita siapin tempat spesial buat kamu!
@@ -537,7 +537,7 @@ Sampai ketemu! 🥳` },
   { name: "hadir (singkat)", subject: "✅ Hadir", body: `{title} {name} - HADIR ✅
 
 Makasih! Sampai ketemu di hari H! 🎉` },
-  { name: "hadir (lengkap)", subject: "Konfirmasi Hadir - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+  { name: "hadir (lengkap)", subject: "Konfirmasi Hadir - Tegar & Vebriza", body: `Assalamualaikum {title} {name}
 
 Alhamdulillah, kami sangat berbahagia mendengar konfirmasi kehadiran Anda.
 
@@ -552,7 +552,7 @@ STATUS: ✅ HADIR
 Sampai bertemu di hari istimewa kami!
 Wassalamualaikum Wr. Wb.
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "hadir (ucapan)", subject: "Terima Kasih!", body: `{title} {name} - HADIR ✅
 
 "Barakallahulakuma wa baraka 'alaikuma wa jama'a bainakuma fi khair"
@@ -567,7 +567,7 @@ See you on:
 📅 July 20, 2026
 
 Best regards,
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "hadir (WA)", subject: "✅ HADIR", body: `{title} {name} - HADIR ✅
 20 Juli 2026 | Batam
 Sampai ketemu! 🎉` },
@@ -586,7 +586,7 @@ Baik, kami catat Anda TIDAK HADIR ❤️
 Terima kasih banyak atas doa restunya. Doa Anda tetap berarti bagi kami 🙏
 
 {TEGAR_SRC}
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "tidak hadir (resmi)", subject: "Konfirmasi Tidak Hadir", body: `Yth. {title} {name}
 
 Kami menerima konfirmasi bahwa Anda tidak dapat hadir.
@@ -595,7 +595,7 @@ Terima kasih atas doa restu yang telah diberikan. Tanpa mengurangi rasa hormat, 
 
 Wassalamualaikum
 
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "tidak hadir (santai)", subject: "Yahh.. 😢", body: `Halo {title} {name}
 
 Yahh.. gak datang 😢 Tapi gapapa, kami ngerti kok!
@@ -616,7 +616,7 @@ Terima kasih atas doa restu yang telah diberikan. Doa Anda sangat berarti bagi k
 
 Wassalamualaikum Wr. Wb.
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "tidak hadir (ucapan)", subject: "Doanya aja ya", body: `{title} {name}
 
 Kami catat Anda TIDAK HADIR. Terima kasih doa & ucapannya, semoga Allah membalas kebaikan Anda 🙏🤲` },
@@ -625,7 +625,7 @@ Kami catat Anda TIDAK HADIR. Terima kasih doa & ucapannya, semoga Allah membalas
 We understand you can't attend. Thank you for your prayers and kind wishes! ❤️🙏
 
 Best regards,
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "tidak hadir (WA)", subject: "❌ TIDAK HADIR", body: `{title} {name} - TIDAK HADIR ❤️
 Makasih doanya! 🙏` },
   { name: "tidak hadir (simple)", subject: "Tidak Hadir", body: `Baik {title} {name}, terima kasih konfirmasinya. Doa Anda tetap berarti! 🙏` },
@@ -642,7 +642,7 @@ Terima kasih banyak atas hadiah yang telah diberikan 🙏
 Doa restu dan perhatian Anda sangat berarti bagi kami. Semoga Allah membalas kebaikan {title} {name}.
 
 Wassalamualaikum
-Tegar & Vebiza 💕` },
+Tegar & Vebriza 💕` },
   { name: "gift (singkat)", subject: "🙏", body: `Makasih {title} {name} atas hadiahnya! 🙏❤️` },
   { name: "gift (resmi)", subject: "Terima Kasih", body: `Yth. {title} {name}
 
@@ -651,14 +651,14 @@ Kami mengucapkan terima kasih yang sebesar-besarnya atas hadiah yang telah diber
 Semoga Allah SWT membalas kebaikan {title} {name} dengan berlipat ganda.
 
 Wassalamualaikum Wr. Wb.
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "gift (santai)", subject: "Makasih! 🎉", body: `Halo {title} {name}!
 
 Makasih banget atas hadiahnya! Kami sangat berterima kasih ❤️🎉
 
 Semoga berkah selalu!
-Tegar & Vebiza` },
-  { name: "gift (lengkap)", subject: "Terima Kasih - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+Tegar & Vebriza` },
+  { name: "gift (lengkap)", subject: "Terima Kasih - Tegar & Vebriza", body: `Assalamualaikum {title} {name}
 
 Kami sekeluarga mengucapkan terima kasih yang tulus atas hadiah yang telah diberikan.
 
@@ -666,14 +666,14 @@ Semoga Allah SWT membalas kebaikan {title} {name} dengan pahala yang berlipat ga
 
 Wassalamualaikum Wr. Wb.
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "gift (WA)", subject: "Makasih 🙏", body: `{title} {name} - Makasih hadiahnya! 🙏❤️` },
   { name: "gift (English)", subject: "Thank You!", body: `Dear {title} {name}
 
 Thank you so much for your generous gift! We truly appreciate your kindness and blessings. 🙏❤️
 
 Best regards,
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "gift (simple)", subject: "🙏", body: `Terima kasih {title} {name} atas hadiahnya. Doa terbaik untuk Anda! 🙏` },
   { name: "gift (doa)", subject: "Hadiah + Doa", body: `{title} {name}
 
@@ -687,21 +687,21 @@ Terima kasih banyak atas kado yang telah dikirimkan 🙏
 Kami sangat bersyukur memiliki {title} {name} yang begitu perhatian. Semoga Allah membalas kebaikan Anda.
 
 Wassalamualaikum
-Tegar & Vebiza 💕` },
+Tegar & Vebriza 💕` },
   { name: "kado (singkat)", subject: "🙏🎁", body: `Makasih {title} {name} atas kado nya! 🙏🎉` },
   { name: "kado (resmi)", subject: "Terima Kasih", body: `Yth. {title} {name}
 
 Kami ucapkan terima kasih atas kado yang telah {title} {name} kirimkan. Perhatian dan doa restu Anda sangat berarti.
 
 Wassalamualaikum
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "kado (santai)", subject: "Kado nyampe! 🎁", body: `Hai {title} {name}!
 
 Kado nya udah sampe! Makasih banyak ya 😍🎉
 
 Kami tunggu kehadirannya!
-Tegar & Vebiza 💕` },
-  { name: "kado (lengkap)", subject: "Terima Kasih - Tegar & Vebiza", body: `Assalamualaikum {title} {name}
+Tegar & Vebriza 💕` },
+  { name: "kado (lengkap)", subject: "Terima Kasih - Tegar & Vebriza", body: `Assalamualaikum {title} {name}
 
 Kado yang {title} {name} kirimkan sudah kami terima. Terima kasih banyak atas perhatian dan kasih sayangnya.
 
@@ -709,14 +709,14 @@ Semoga Allah SWT membalas kebaikan {title} {name}.
 
 Wassalamualaikum Wr. Wb.
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara` },
+Tegar Arrahman & Vebriza Juinda Putri Zahara` },
   { name: "kado (WA)", subject: "🎁🙏", body: `{title} {name} - Makasih kado nya! 🎁🙏❤️` },
   { name: "kado (English)", subject: "Gift Received! 🎁", body: `Dear {title} {name}
 
 We received your gift! Thank you so much for your kindness and love! ❤️🎁
 
 Best regards,
-Tegar & Vebiza` },
+Tegar & Vebriza` },
   { name: "kado (simple)", subject: "🙏🎁", body: `Terima kasih {title} {name} atas kado yang dikirim. Kami sangat berterima kasih! 🙏🎁` },
   { name: "kado (doa)", subject: "Kado + Doa", body: `{title} {name}
 
@@ -724,12 +724,12 @@ Terima kasih atas kado & doa restunya. Semoga Allah membalas kebaikan {title} {n
 
   {
     name: "undangan (English)",
-    subject: "Wedding Invitation — Tegar & Vebiza",
+    subject: "Wedding Invitation — Tegar & Vebriza",
     body: `Dear {title} {name}
 
 With great joy, we invite you to the wedding of:
 
-Tegar Arrahman & Vebiza Juinda Putri Zahara
+Tegar Arrahman & Vebriza Juinda Putri Zahara
 
 📅 Monday, July 20, 2026
 📍 KUA Batu Aji, Batam
@@ -740,7 +740,7 @@ Please view the full invitation:
 Your presence and prayers mean the world to us.
 
 Best regards,
-Tegar & Vebiza`,
+Tegar & Vebriza`,
   },
 ];
 

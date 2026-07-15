@@ -15,7 +15,7 @@ export default function CoupleSlide() {
               <div id="frame-jawa-bottom" style={{ height: "50px" }} />
             </div>
             <div className="text-center mb-2 animate__animated animate__fadeInLeft animate__slower">
-              <div className="font-latin color-accent mb-2" style={{ fontSize: "28.8px" }}>Vebiza Juinda Putri Zahara</div>
+              <div className="font-latin color-accent mb-2" style={{ fontSize: "28.8px" }}>Vebriza Juinda Putri Zahara, A.Md.Kom</div>
               <div style={{ fontSize: "14.4px" }}>Putri dari<br />Bapak Sarmadan<br />&amp; Ibu Nurhayati</div>
             </div>
             <div className="text-center animate__animated animate__fadeIn animate__slower" style={{ marginTop: "-10px" }}>

@@ -13,7 +13,7 @@ export default function OpeningSlide() {
               <img src="/api/r2/public/images/satumomen/character.webp" alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} draggable={false} />
             </div>
             <div style={{ fontSize: "14.4px", letterSpacing: 2 }}>The Wedding of</div>
-            <div className="font-latin color-accent" style={{ fontSize: "40px" }}>Tegar &amp; Vebiza</div>
+            <div className="font-latin color-accent" style={{ fontSize: "40px" }}>Tegar &amp; Vebriza</div>
           </div>
         </div>
       </div>

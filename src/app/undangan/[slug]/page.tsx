@@ -10,8 +10,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const guest = await prisma.guest.findUnique({ where: { slug } });
   if (!guest) return { title: "Undangan Tidak Ditemukan" };
 
-  const title = `Undangan Pernikahan Tegar & Vebiza - ${guest.title} ${guest.name}`;
-  const description = `Undangan pernikahan Tegar Arrahman & Vebiza Juinda Putri Zahara. ${guest.title} ${guest.name} dihormati untuk hadir.`;
+  const title = `Undangan Pernikahan Tegar & Vebriza - ${guest.title} ${guest.name}`;
+  const description = `Undangan pernikahan Tegar Arrahman & Vebriza Juinda Putri Zahara. ${guest.title} ${guest.name} dihormati untuk hadir.`;
   const url = `${BASE}/undangan/${slug}`;
 
   return {
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       url,
       type: "website",
-      siteName: "Nikah Tegar & Vebiza",
+      siteName: "Nikah Tegar & Vebriza",
       images: [{ url: `${BASE}/api/r2/public/images/satumomen/ilustrasi.webp`, width: 1200, height: 630 }],
     },
     twitter: { card: "summary_large_image", title, description },
