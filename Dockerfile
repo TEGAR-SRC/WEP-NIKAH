@@ -24,14 +24,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-COPY scripts/start.sh ./start.sh
-RUN chmod +x start.sh
-
-RUN npm install -g tsx && \
-    npm install @prisma/adapter-pg @prisma/adapter-libsql @libsql/client argon2 && \
-    npx prisma generate && \
-    mkdir -p wa_session && \
-    chown -R nextjs:nodejs wa_session /app
+RUN mkdir -p wa_session && chown -R nextjs:nodejs wa_session /app
 
 EXPOSE 3000
 
@@ -39,4 +32,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 USER nextjs
-CMD ["sh", "start.sh"]
+CMD ["node", "server.js"]

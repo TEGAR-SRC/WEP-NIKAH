@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { sign, verify } from "jsonwebtoken";
 import { createHash } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { verify as argonVerify } from "argon2";
+import { verify as argonVerify, hash as argonHash } from "argon2";
 
 const JWT_SECRET = process.env.JWT_SECRET || "nikah-jwt-secret-change-in-production";
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY ?? "";
@@ -27,7 +27,15 @@ export async function POST(req: Request) {
     }
   }
 
-  const admin = await prisma.admin.findUnique({ where: { email } });
+  let admin = await prisma.admin.findUnique({ where: { email } });
+  if (!admin) {
+    // Auto-seed: create default admin if no admin exists
+    const count = await prisma.admin.count();
+    if (count === 0 && email === "admin@nikah.com") {
+      await prisma.admin.create({ data: { email: "admin@nikah.com", password: await argonHash("admin123", { type: 2 }) } });
+      admin = await prisma.admin.findUnique({ where: { email } });
+    }
+  }
   if (!admin) {
     return NextResponse.json({ error: "Email atau password salah" }, { status: 401 });
   }
