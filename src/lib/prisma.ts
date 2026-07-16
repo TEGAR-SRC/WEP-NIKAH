@@ -12,8 +12,8 @@ function resolvePrisma() {
   const pool = new Pool({
     connectionString: url,
     max: 5,
-    connectionTimeoutMillis: 8000,
-    idleTimeoutMillis: 15000,
+    connectionTimeoutMillis: 15000,
+    idleTimeoutMillis: 30000,
   });
   return new PrismaClient({ adapter: new PrismaPg(pool) });
 }

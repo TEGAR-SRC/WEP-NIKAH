@@ -13,8 +13,11 @@ export default function GiftSlide() {
     if (!guest.id || sending) return;
     setSending(true);
     try {
-      await fetch("/api/wa/gift", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, type }) });
-      setSent(type);
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 15000);
+      const r = await fetch("/api/wa/gift", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guestId: guest.id, type }), signal: ctrl.signal });
+      clearTimeout(tid);
+      if (r.ok) setSent(type);
     } catch {}
     setSending(false);
   };
